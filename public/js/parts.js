@@ -259,11 +259,18 @@ export const PART_TYPES = {
       return placeGroup(part, 2, 2, g);
     },
     colliders(part) {
-      // floor of the drum interior so you can stand in it
-      return [box(part, 2, 2, { x: G - 3.5, y: 0, z: G - 5 }, { x: G + 4.5, y: 3.2, z: G + 5 })];
+      // A bucket you run INSIDE: running floor + closed back end (-x) + two side
+      // walls sized to the drum interior, open at the +x face so you can step in
+      // and out. Running forward is caught by the walls and spins the drum.
+      return [
+        box(part, 2, 2, { x: 6, y: 0, z: 5 }, { x: 14, y: 3, z: 15 }),    // running floor
+        box(part, 2, 2, { x: 5, y: 0, z: 4 }, { x: 6.5, y: 13, z: 16 }),  // closed back end (-x)
+        box(part, 2, 2, { x: 6, y: 0, z: 4 }, { x: 15, y: 13, z: 5 }),    // side wall (low z)
+        box(part, 2, 2, { x: 6, y: 0, z: 15 }, { x: 15, y: 13, z: 16 }),  // side wall (high z)
+      ];
     },
     zones(part) {
-      return [box(part, 2, 2, { x: G - 4, y: 0, z: G - 6 }, { x: G + 5, y: 16, z: G + 6 }, { type: 'wheel', partId: part.id })];
+      return [box(part, 2, 2, { x: 6, y: 0, z: 5 }, { x: 14, y: 15, z: 15 }, { type: 'wheel', partId: part.id })];
     },
   },
 
