@@ -43,7 +43,6 @@ npx wrangler deploy
 | `R` (build) | Rotate part |
 | `X` / right-click (build) | Delete aimed part |
 | `1–4` (play) | Emotes |
-| `Enter` | Chat |
 | Scroll wheel | Camera zoom |
 
 ## The game
@@ -65,7 +64,7 @@ npx wrangler deploy
   with substepping, step-up walking, climb/bounce/bank/wheel volumes, third-person camera
   with occlusion, procedural hamsters, procedural WebAudio sound + generative music.
 - **Server**: Node + `ws`. Rooms with unambiguous 5-letter codes, 15 Hz state relay with
-  client-side interpolation, server-authoritative seed economy, part/chat/emote relay.
+  client-side interpolation, server-authoritative seed economy, part/emote relay.
 
 ```
 server.js            HTTP static + WebSocket rooms
@@ -77,6 +76,6 @@ public/js/player.js  controller + camera
 public/js/hamster.js procedural hamster + animation
 public/js/build.js   build mode (ghost, snapping, delete)
 public/js/net.js     client networking
-public/js/ui.js      menus/HUD/chat  ·  audio.js  procedural sound
+public/js/ui.js      menus/HUD  ·  audio.js  procedural sound
 public/js/main.js    orchestration + game loop
 ```

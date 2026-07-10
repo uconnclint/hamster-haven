@@ -38,14 +38,25 @@ export class BuildMode {
     if (this.ghost) { this.scene.remove(this.ghost); this.ghost = null; this.ghostKey = ''; }
   }
 
-  // Aim ray from camera center; snap hit point to grid. partMeshes: Map id->mesh for delete picking.
-  update(partMeshes) {
+  // Aim ray through the mouse cursor (or camera center as fallback); snap hit
+  // point to grid. partMeshes: Map id->mesh for delete picking.
+  update(partMeshes, ndc) {
     if (!this.active) return;
+    const origin = new THREE.Vector3();
     const dir = new THREE.Vector3();
-    this.camera.getWorldDirection(dir);
-    const o = this.camera.position;
+    if (ndc) {
+      this._ray = this._ray || new THREE.Raycaster();
+      this._ray.setFromCamera(ndc, this.camera);
+      origin.copy(this._ray.ray.origin);
+      dir.copy(this._ray.ray.direction);
+    } else {
+      origin.copy(this.camera.position);
+      this.camera.getWorldDirection(dir);
+    }
+    this._aimOrigin = origin;
+    this._aimDir = dir;
     const hit = this.physics.raycast(
-      { x: o.x, y: o.y, z: o.z },
+      { x: origin.x, y: origin.y, z: origin.z },
       { x: dir.x, y: dir.y, z: dir.z },
       300
     );
@@ -93,7 +104,7 @@ export class BuildMode {
     // Delete hover: nearest part mesh under the ray
     this.deleteHover = null;
     let bestD = 200;
-    const ray = new THREE.Raycaster(this.camera.position, dir, 1, 200);
+    const ray = new THREE.Raycaster(this._aimOrigin, this._aimDir, 1, 200);
     for (const [id, mesh] of partMeshes) {
       const hits = ray.intersectObject(mesh, true);
       if (hits.length && hits[0].distance < bestD) {

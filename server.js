@@ -191,11 +191,6 @@ wss.on('connection', (ws) => {
       case 'emote':
         broadcast(room, { t: 'emote', id, e: msg.e | 0 });
         break;
-      case 'chat': {
-        const text = String(msg.text || '').slice(0, 120).trim();
-        if (text) broadcast(room, { t: 'chat', id, name: me.name, text });
-        break;
-      }
     }
   });
 

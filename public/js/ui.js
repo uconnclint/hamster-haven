@@ -51,17 +51,12 @@ const S = {
   buildBar: null,
   buildItems: [],
   buildHelp: null,
-  chatWrap: null,
-  chatLog: null,
-  chatInput: null,
   musicBtn: null,
   // values
   name: 'Hamster',
   colorIndex: 0,
   inGame: false,
-  chatOpen: false,
   musicOn: false,
-  chatLines: [],
 };
 
 // ---------------------------------------------------------------------------
@@ -84,13 +79,11 @@ export const ui = {
     buildHud();
     buildMenu();
     buildConnecting();
-    installKeyHandlers();
     this.showMenu();
   },
 
   showMenu(err) {
     S.inGame = false;
-    closeChat();
     hide(S.hud);
     hide(S.connecting);
     show(S.menu);
@@ -108,7 +101,6 @@ export const ui = {
 
   showConnecting() {
     S.inGame = false;
-    closeChat();
     hide(S.menu);
     hide(S.hud);
     show(S.connecting);
@@ -195,27 +187,6 @@ export const ui = {
 
   setBuildSelected(i) {
     setBuildSel(i);
-  },
-
-  addChat(name, text, you) {
-    const line = el('div', { class: 'hh-chat-line' + (you ? ' you' : '') }, [
-      el('span', { class: 'hh-chat-name', text: (name || 'Hamster') + ':' }),
-      el('span', { class: 'hh-chat-text', text: ' ' + text }),
-    ]);
-    S.chatLog.appendChild(line);
-    const rec = { node: line, t: setTimeout(() => line.classList.add('faded'), 10000) };
-    S.chatLines.push(rec);
-    // keep only last 6 in DOM
-    while (S.chatLines.length > 6) {
-      const old = S.chatLines.shift();
-      clearTimeout(old.t);
-      old.node.remove();
-    }
-    S.chatLog.scrollTop = S.chatLog.scrollHeight;
-  },
-
-  isChatOpen() {
-    return S.chatOpen;
   },
 
   showEmoteHint() {
@@ -441,21 +412,6 @@ function buildHud() {
   // toasts top-center
   S.toastWrap = el('div', { class: 'hh-toasts' });
 
-  // chat bottom-left
-  S.chatLog = el('div', { class: 'hh-chat-log' });
-  S.chatInput = el('input', {
-    class: 'hh-chat-input hh-hidden', type: 'text', maxlength: '120',
-    placeholder: 'Say something…', spellcheck: 'false',
-  });
-  // stopPropagation on keydown AND keyup so game keys don't fire while typing
-  S.chatInput.addEventListener('keydown', (e) => {
-    e.stopPropagation();
-    if (e.key === 'Enter') { e.preventDefault(); sendChat(); }
-    else if (e.key === 'Escape') { e.preventDefault(); closeChat(); }
-  });
-  S.chatInput.addEventListener('keyup', (e) => { e.stopPropagation(); });
-  S.chatWrap = el('div', { class: 'hh-chat' }, [S.chatLog, S.chatInput]);
-
   // hint line bottom-center
   S.hintEl = el('div', { class: 'hh-hint hh-hidden' });
 
@@ -463,14 +419,14 @@ function buildHud() {
   S.emoteHint = el('div', { class: 'hh-emotes hh-hidden' });
 
   // build bar bottom-center
-  S.buildHelp = el('div', { class: 'hh-build-help', text: 'Click a slot or press 1–9  •  R rotate  •  Click to place  •  B to exit build' });
+  S.buildHelp = el('div', { class: 'hh-build-help', text: 'Point & click to place  •  R rotate  •  1–9 / Q/E pick part  •  X delete  •  B done' });
   S.buildBar = el('div', { class: 'hh-buildbar hh-hidden' }, [
     S.buildHelp,
     el('div', { class: 'hh-build-slots' }),
   ]);
 
   S.hud = el('div', { class: 'hh-hud hh-hidden' }, [
-    topLeft, topRight, S.toastWrap, S.chatWrap, S.emoteHint, S.hintEl, S.buildBar,
+    topLeft, topRight, S.toastWrap, S.emoteHint, S.hintEl, S.buildBar,
   ]);
   S.root.appendChild(S.hud);
 }
@@ -496,39 +452,3 @@ function fallbackCopy(text, done) {
   } catch (e) { ui.toast('Room code: ' + text); }
 }
 
-// ---- chat ------------------------------------------------------------------
-function openChat() {
-  if (!S.inGame || S.chatOpen) return;
-  S.chatOpen = true;
-  show(S.chatInput);
-  S.chatWrap.classList.add('open');
-  S.chatInput.value = '';
-  S.chatInput.focus();
-}
-function closeChat() {
-  if (!S.chatOpen) return;
-  S.chatOpen = false;
-  hide(S.chatInput);
-  S.chatWrap.classList.remove('open');
-  S.chatInput.value = '';
-  if (S.chatInput.blur) S.chatInput.blur();
-}
-function sendChat() {
-  const text = (S.chatInput.value || '').trim();
-  if (text && S.cb.onChat) S.cb.onChat(text);
-  closeChat();
-}
-
-// ---- key handlers (only Enter / Escape / clicks per contract) --------------
-function installKeyHandlers() {
-  window.addEventListener('keydown', (e) => {
-    if (!S.inGame) return;
-    if (S.chatOpen) return; // input handles its own keys + stopPropagation
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      openChat();
-    } else if (e.key === 'Escape') {
-      // nothing open to close; ignore
-    }
-  });
-}

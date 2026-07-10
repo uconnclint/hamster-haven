@@ -468,53 +468,6 @@ html, body {
 .hh-toast.in { opacity: 1; transform: translateY(0) scale(1); }
 .hh-toast.out { opacity: 0; transform: translateY(-10px) scale(0.95); }
 
-/* chat bottom-left */
-.hh-chat {
-  position: absolute;
-  left: 16px; bottom: 16px;
-  width: min(38vw, 380px);
-  display: flex; flex-direction: column; gap: 8px;
-}
-.hh-chat-log {
-  display: flex; flex-direction: column; gap: 4px;
-  max-height: 168px; overflow: hidden;
-  pointer-events: none;
-}
-.hh-chat-line {
-  align-self: flex-start;
-  max-width: 100%;
-  background: rgba(255,250,240,0.86);
-  border-radius: 12px;
-  padding: 5px 11px;
-  font-size: 14px; font-weight: 600;
-  color: var(--ink);
-  box-shadow: 0 2px 6px rgba(120,80,30,0.15);
-  animation: chatIn 0.28s cubic-bezier(0.22,1.4,0.4,1) both;
-  transition: opacity 1.2s;
-  word-break: break-word;
-}
-.hh-chat-line.faded { opacity: 0.28; }
-.hh-chat-line.you { background: rgba(246,196,83,0.28); }
-.hh-chat-name { font-weight: 900; color: var(--amber-dark); }
-.hh-chat-line.you .hh-chat-name { color: var(--leaf); }
-@keyframes chatIn {
-  0% { transform: translateX(-16px); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
-}
-.hh-chat-input {
-  pointer-events: auto;
-  font-family: var(--font);
-  font-size: 15px; font-weight: 700;
-  color: var(--ink);
-  background: var(--white-warm);
-  border: 3px solid var(--amber);
-  border-radius: 14px;
-  padding: 9px 14px;
-  outline: none;
-  box-shadow: var(--shadow-sm);
-}
-.hh-chat-input::placeholder { color: #c4ab84; font-weight: 600; }
-
 /* bottom-center stack: build bar (bottom) -> hint -> emotes            */
 .hh-hint {
   position: absolute;

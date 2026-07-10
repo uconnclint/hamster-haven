@@ -61,5 +61,4 @@ export class Net {
   collect(id, max) { this._send({ t: 'collect', id, max }); }
   deposit() { this._send({ t: 'deposit' }); }
   emote(e) { this._send({ t: 'emote', e }); }
-  chat(text) { this._send({ t: 'chat', text }); }
 }

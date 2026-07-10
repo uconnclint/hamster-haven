@@ -239,11 +239,6 @@ export class RoomDO extends DurableObject {
       case 'emote':
         this._broadcast({ t: 'emote', id: me.id, e: msg.e | 0 });
         break;
-      case 'chat': {
-        const text = String(msg.text || '').slice(0, 120).trim();
-        if (text) this._broadcast({ t: 'chat', id: me.id, name: me.name, text });
-        break;
-      }
     }
   }
 

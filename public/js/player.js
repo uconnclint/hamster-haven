@@ -17,12 +17,13 @@ export class PlayerController {
     this.dashUntil = 0;
     this.dashCooldownUntil = 0;
     this.keys = new Set();
-    this.enabled = false;          // gates game keys (menu / chat open)
+    this.enabled = false;          // gates game keys until in a room
     this.speedNorm = 0;            // 0..1 for animation
     this.events = [];              // 'jump'|'land'|'dash'|'bounce' since last poll
 
+    this.buildMode = false;
     canvas.addEventListener('mousedown', (e) => {
-      if (!this.enabled || e.button !== 0) return;
+      if (!this.enabled || this.buildMode || e.button !== 0) return;
       if (document.pointerLockElement !== canvas) canvas.requestPointerLock?.();
     });
     document.addEventListener('mousemove', (e) => {

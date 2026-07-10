@@ -55,12 +55,11 @@ const seedMeshes = new Map();  // seedId -> mesh
 let lastDepositAt = 0;
 let lastWheelSfx = 0;
 
-// crosshair for build mode
-const crosshair = document.createElement('div');
-crosshair.style.cssText =
-  'position:fixed;left:50%;top:50%;width:10px;height:10px;margin:-5px;border:2px solid #fff;' +
-  'border-radius:50%;box-shadow:0 0 4px rgba(0,0,0,.6);pointer-events:none;z-index:30;display:none';
-document.body.appendChild(crosshair);
+// mouse position in normalized device coords, for build-mode cursor aiming
+const mouseNdc = new THREE.Vector2(0, 0);
+addEventListener('mousemove', (e) => {
+  mouseNdc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+});
 
 // ------------------------------------------------------------ particles
 
@@ -194,7 +193,7 @@ net.on('joined', (msg) => {
   joined = true;
   ui.showHUD(msg.code);
   ui.setSeeds(0, 0, PLAYER.maxCarry);
-  ui.hint('WASD scurry · Space jump · Shift dash · B build · Enter chat');
+  ui.hint('WASD scurry · Space jump · Shift dash · B build · 1-4 emotes');
   for (const part of msg.parts) addPart(part);
   for (const seed of msg.seeds) addSeed(seed);
   for (const p of msg.players) if (p.id !== net.id) addRemote(p);
@@ -268,11 +267,6 @@ net.on('emote', (msg) => {
   audio.play('squeak');
 });
 
-net.on('chat', (msg) => {
-  ui.addChat(msg.name, msg.text, msg.id === net.id);
-  if (msg.id !== net.id) audio.play('chat');
-});
-
 net.on('disconnected', () => {
   ui.toast('Disconnected from room');
   location.reload();
@@ -292,7 +286,6 @@ ui.init({
     });
   },
   onEmote(i) { if (joined) { net.emote(i); myHamster?.userData.hamster.showEmote(EMOTES[i]); audio.play('squeak'); } },
-  onChat(text) { net.chat(text); },
   onSelectPart(i) { build.setSelected(i); ui.setBuildSelected(build.sel); audio.play('click'); },
   onToggleMusic(on) { audio.setMusicOn(on); },
 });
@@ -303,22 +296,22 @@ ui.showMenu();
 function toggleBuild() {
   if (build.active) {
     build.exit();
+    player.buildMode = false;
     ui.hideBuildBar();
     ui.showEmoteHint();
-    ui.hint('WASD scurry · Space jump · Shift dash · B build · Enter chat');
-    crosshair.style.display = 'none';
+    ui.hint('WASD scurry · Space jump · Shift dash · B build · 1-4 emotes');
   } else {
     build.enter();
+    player.buildMode = true;
+    document.exitPointerLock?.();     // aim with the visible cursor
     ui.showBuildBar(CATALOG, build.sel);
-    ui.hint('Aim & click to place · R rotate · Q/E switch · X delete · B done');
-    crosshair.style.display = 'block';
-    canvas.requestPointerLock?.();
+    ui.hint('');                      // the build bar has its own help line
   }
   audio.play('click');
 }
 
 document.addEventListener('keydown', (e) => {
-  if (!joined || ui.isChatOpen()) return;
+  if (!joined) return;
   if (e.code === 'KeyB') { toggleBuild(); return; }
   if (build.active) {
     if (e.code === 'KeyR') { build.rotate(); audio.play('rotate'); }
@@ -340,8 +333,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 canvas.addEventListener('mousedown', (e) => {
-  if (!joined || !build.active || ui.isChatOpen()) return;
-  if (document.pointerLockElement !== canvas) return; // first click just locks
+  if (!joined || !build.active) return;
   if (e.button === 0) {
     const spec = build.placeSpec();
     if (spec) net.place(spec);
@@ -373,7 +365,6 @@ function tick(forceDt) {
   if (sky) { scene.background.copy(sky); scene.fog.color.copy(sky); }
 
   if (joined && myHamster) {
-    player.enabled = !ui.isChatOpen();
     player.update(dt, physics);
     const b = player.body;
 
@@ -412,7 +403,7 @@ function tick(forceDt) {
     }
     net.sendState(b.pos, player.yaw, { s: +player.speedNorm.toFixed(1), g: player.grounded ? 1 : 0 });
 
-    build.update(partMeshes);
+    build.update(partMeshes, mouseNdc);
   }
 
   // remote interpolation

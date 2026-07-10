@@ -97,14 +97,19 @@ export const PART_TYPES = {
     build(part) {
       const g = new THREE.Group();
       const color = tubeColor(part);
-      // elbow: quarter torus in XZ plane at tube height
-      const torus = new THREE.Mesh(
-        new THREE.TorusGeometry(G / 2, 6, 6, 4, Math.PI / 2),
-        mat(color, { side: THREE.DoubleSide, transparent: true, opacity: 0.92 })
-      );
-      torus.rotation.x = Math.PI / 2;
-      torus.position.set(-G / 2, 6, G / 2); // arc from +z opening to +x... adjusted below
+      // elbow: quarter torus connecting the -z face to the +x face
+      const geo = new THREE.TorusGeometry(G / 2, 6, 6, 5, Math.PI / 2);
+      geo.rotateX(Math.PI / 2);
+      geo.rotateY(-Math.PI / 2);
+      const torus = new THREE.Mesh(geo, mat(color, { side: THREE.DoubleSide, transparent: true, opacity: 0.92 }));
+      torus.position.set(G / 2, 6, -G / 2); // arc center at the +x/-z corner
       g.add(torus);
+      for (const [x, z, ry] of [[0, -G / 2, 0], [G / 2, 0, Math.PI / 2]]) { // rims at both openings
+        const rim = new THREE.Mesh(new THREE.TorusGeometry(6, 0.7, 4, 8), mat(0xffffff));
+        rim.position.set(x, 6, z);
+        rim.rotation.y = ry;
+        g.add(rim);
+      }
       return placeGroup(part, 1, 1, g);
     },
     colliders(part) {
