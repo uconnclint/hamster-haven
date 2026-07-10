@@ -1,11 +1,14 @@
 # 🐹 Hamster Haven
 
+**Play it now: https://hamster-haven.csmcleod.workers.dev** — create a world, share the
+5-letter code, and your friends can join from anywhere.
+
 A cozy, flat-shaded low-poly **3D multiplayer hamster world**. You wake up as a hamster in a
 cage on a kid's desk. Collect sunflower seeds, stuff your cheeks, build tubes and wheels and
 houses, escape the cage, and explore the whole bedroom — with friends, via a shareable
 5-letter room code.
 
-## Play
+## Play locally
 
 ```bash
 npm install
@@ -13,11 +16,18 @@ npm start
 ```
 
 Open **http://localhost:3210**, pick a name and fur color, and **Create World**.
-Your room gets a 5-letter code (click it to copy). Friends on your network open the same
-address and **Join** with the code. Up to 8 hamsters per room.
+Your room gets a 5-letter code (click it to copy). Friends open the same address and
+**Join** with the code. Up to 8 hamsters per room.
 
-> To play across the internet, expose the port (e.g. `ngrok http 3210` or any host that
-> supports WebSockets) and share the URL + room code.
+## Deploy to Cloudflare
+
+The game also runs on Cloudflare Workers: static assets + one Durable Object per room
+([worker/index.js](worker/index.js), same wire protocol as the Node server — and built
+parts persist in DO storage, so cloud rooms survive restarts).
+
+```bash
+npx wrangler deploy
+```
 
 ## Controls
 

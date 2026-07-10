@@ -15,7 +15,8 @@ export class Net {
 
   connect({ mode, code, name, colorIndex }, onError) {
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-    const ws = new WebSocket(`${proto}://${location.host}`);
+    const q = mode === 'join' ? `mode=join&code=${encodeURIComponent(code || '')}` : 'mode=create';
+    const ws = new WebSocket(`${proto}://${location.host}/ws?${q}`);
     this.ws = ws;
     ws.onopen = () => {
       this.connected = true;
