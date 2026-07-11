@@ -11,10 +11,38 @@ import { Net } from './net.js';
 import { ui } from './ui.js';
 import { audio } from './audio.js';
 
+// ------------------------------------------------------------ boot safety
+
+// Turn any fatal startup error into a visible message instead of a blank screen.
+let bootOk = false;
+function showFatal(msg) {
+  const root = document.getElementById('ui-root') || document.body;
+  root.innerHTML =
+    '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;' +
+    'padding:24px;font-family:ui-rounded,system-ui,sans-serif;text-align:center;color:#4a3626;' +
+    'background:linear-gradient(160deg,#f7e3c2,#e8a552);z-index:9999">' +
+    '<div style="max-width:520px;background:#fff8ec;border-radius:20px;padding:28px 32px;' +
+    'box-shadow:0 12px 30px rgba(120,80,30,.3)">' +
+    '<h2 style="margin:0 0 10px;font-size:24px">Couldn\'t start Hamster Haven</h2>' +
+    '<p style="margin:0 0 8px;line-height:1.5;font-weight:600">' + msg + '</p>' +
+    '<p style="margin:0;opacity:.7;font-size:14px">Try a hard refresh (Cmd/Ctrl+Shift+R), enable ' +
+    'hardware acceleration, or open it in Chrome, Firefox, or Safari on desktop.</p></div></div>';
+}
+window.addEventListener('error', (e) => { if (!bootOk) showFatal(e.message || 'Unexpected error'); });
+window.addEventListener('unhandledrejection', (e) => {
+  if (!bootOk) showFatal((e.reason && e.reason.message) || 'Unexpected error');
+});
+
 // ------------------------------------------------------------ renderer/scene
 
 const canvas = document.getElementById('game-canvas');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'default' });
+} catch (err) {
+  showFatal('Your browser or device couldn\'t start WebGL 3D graphics.');
+  throw err;
+}
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -290,6 +318,7 @@ ui.init({
   onToggleMusic(on) { audio.setMusicOn(on); },
 });
 ui.showMenu();
+bootOk = true; // menu is up; from here errors are non-fatal to boot
 
 // ------------------------------------------------------------ input (game keys)
 
