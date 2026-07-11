@@ -100,14 +100,18 @@ html, body {
 .hh-float {
   position: absolute;
   bottom: -8%;
-  font-size: 26px;
   opacity: 0.85;
   filter: drop-shadow(0 4px 6px rgba(120,80,30,0.25));
   animation: floatUp 13s linear infinite;
 }
-.hh-float.f1 { font-size: 20px; animation-duration: 16s; }
-.hh-float.f2 { font-size: 30px; animation-duration: 11s; }
-.hh-float.f3 { font-size: 22px; animation-duration: 18s; }
+.hh-float-img { display: block; width: 30px; height: 30px; object-fit: contain; }
+.hh-float.f0 .hh-float-img { width: 26px; height: 26px; }
+.hh-float.f1 .hh-float-img { width: 22px; height: 22px; }
+.hh-float.f1 { animation-duration: 16s; }
+.hh-float.f2 .hh-float-img { width: 36px; height: 36px; }
+.hh-float.f2 { animation-duration: 11s; }
+.hh-float.f3 .hh-float-img { width: 24px; height: 24px; }
+.hh-float.f3 { animation-duration: 18s; }
 @keyframes floatUp {
   0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
   10%  { opacity: 0.85; }
@@ -118,9 +122,13 @@ html, body {
 /* ---- title / wordmark -------------------------------------------------- */
 .hh-title { position: relative; z-index: 2; text-align: center; user-select: none; }
 .hh-title-emoji {
-  font-size: 76px;
   filter: drop-shadow(0 8px 10px rgba(120,80,30,0.28));
   animation: hamsterBob 2.6s ease-in-out infinite;
+}
+.hh-mascot-img {
+  width: 110px; height: 110px;
+  object-fit: contain;
+  display: block;
 }
 @keyframes hamsterBob {
   0%, 100% { transform: translateY(0) rotate(-3deg); }
@@ -249,16 +257,27 @@ html, body {
   box-shadow: var(--shadow-md);
 }
 .hh-btn:hover { filter: brightness(1.04); transform: translateY(-2px); }
-.hh-btn:active { transform: translateY(2px); box-shadow: var(--shadow-sm); }
+.hh-btn:active { transform: translateY(2px); }
+/* both primary & secondary use a rendered art plate as the background */
+.hh-btn-primary, .hh-btn-secondary {
+  background: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  box-shadow: none;
+  filter: drop-shadow(0 6px 8px rgba(120,80,30,0.28));
+}
 .hh-btn-primary {
-  background: linear-gradient(180deg, #ffd66b, var(--amber-deep));
+  background-image: url('/assets/button-primary.png');
   color: #6a3e12;
   text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+  padding: 18px 24px;
 }
+.hh-btn-primary:hover, .hh-btn-secondary:hover { filter: drop-shadow(0 8px 10px rgba(120,80,30,0.32)) brightness(1.03); }
 .hh-btn-secondary {
-  background: linear-gradient(180deg, #9ad07a, var(--leaf));
+  background-image: url('/assets/button-secondary.png');
   color: #234115;
-  padding: 12px 22px;
+  padding: 16px 26px;
   font-size: 17px;
   white-space: nowrap;
 }
@@ -319,9 +338,9 @@ html, body {
   animation: popIn 0.4s cubic-bezier(0.22,1.4,0.4,1) both;
 }
 .hh-spinner {
-  font-size: 56px;
   animation: spinnerHop 0.9s ease-in-out infinite;
 }
+.hh-spinner-img { display: block; width: 76px; height: 76px; object-fit: contain; }
 @keyframes spinnerHop {
   0%,100% { transform: translateY(0) scale(1); }
   50%     { transform: translateY(-14px) scale(1.08); }
@@ -380,12 +399,12 @@ html, body {
   font-size: 22px; font-weight: 900; letter-spacing: 0.28em;
   color: var(--amber-dark); padding-left: 2px;
 }
-.hh-code-copy { font-size: 14px; opacity: 0.7; }
+.hh-code-copy { width: 18px; height: 18px; object-fit: contain; opacity: 0.75; }
 .hh-code-chip.copied { animation: pop 0.35s cubic-bezier(0.22,1.4,0.4,1); }
 
 /* seeds */
 .hh-seeds { font-size: 15px; gap: 6px; }
-.hh-seed-icon { font-size: 18px; }
+.hh-seed-icon { width: 22px; height: 22px; object-fit: contain; display: block; }
 .hh-seed-carry { color: var(--amber-dark); font-weight: 900; font-size: 17px; }
 .hh-seed-bank { color: var(--leaf); font-weight: 900; font-size: 17px; }
 .hh-seed-sep, .hh-seed-sep2 {
@@ -400,9 +419,9 @@ html, body {
 }
 
 /* music button */
-.hh-music { cursor: pointer; padding: 9px 12px; }
+.hh-music { cursor: pointer; padding: 8px 10px; }
 .hh-music.on { background: linear-gradient(180deg, #ffe08a, var(--amber)); }
-.hh-music-icon { font-size: 16px; }
+.hh-music-icon { width: 20px; height: 20px; object-fit: contain; display: block; }
 
 /* players top-right */
 .hh-topright {
@@ -424,8 +443,10 @@ html, body {
 }
 .hh-pl-title {
   font-size: 13px; font-weight: 900; color: var(--ink-soft);
-  letter-spacing: 0.04em; margin-bottom: 6px; text-align: center;
+  letter-spacing: 0.04em; margin-bottom: 6px;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
 }
+.hh-pl-trophy { width: 18px; height: 18px; object-fit: contain; }
 .hh-pl-row {
   display: flex; align-items: center; gap: 8px;
   padding: 4px 6px; border-radius: 10px;
@@ -442,7 +463,11 @@ html, body {
   color: var(--ink);
 }
 .hh-pl-row.you .hh-pl-name::after { content: " (you)"; color: var(--amber-dark); font-size: 11px; }
-.hh-pl-score { color: var(--leaf); font-weight: 900; font-size: 13px; }
+.hh-pl-score {
+  color: var(--leaf); font-weight: 900; font-size: 13px;
+  display: flex; align-items: center; gap: 3px; flex: 0 0 auto;
+}
+.hh-pl-seed { width: 15px; height: 15px; object-fit: contain; }
 
 /* toasts top-center */
 .hh-toasts {
@@ -509,6 +534,7 @@ html, body {
   font-size: 10px; font-weight: 900; color: var(--ink-soft); opacity: 0.7;
 }
 .hh-emote-face { font-size: 20px; }
+.hh-emote-img { width: 26px; height: 26px; object-fit: contain; display: block; }
 
 /* build bar bottom-center */
 .hh-buildbar {
@@ -558,6 +584,7 @@ html, body {
   transform: translateY(-4px);
 }
 .hh-build-icon { font-size: 24px; line-height: 1; }
+.hh-build-img { width: 34px; height: 34px; object-fit: contain; display: block; }
 .hh-build-name {
   font-size: 9.5px; font-weight: 800; color: var(--ink-soft);
   max-width: 54px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;

@@ -256,16 +256,18 @@ Bold, readable at small size, centered.
 
 ---
 
-## 9. Wiring (for later)
+## 9. Wiring (done ✓)
 
-Once the PNGs are in `public/assets/`, the game reads them from a single map. Two small hooks
-make the swap painless:
+All 25 assets live in `public/assets/` and are wired into the game:
 
-- **Part icons** come from `CATALOG` in `public/js/parts.js` (each part's `icon:` field).
-  These will change from an emoji string to an image path like `assets/part-tube.png`, and the
-  build bar in `public/js/ui.js` will render an `<img>` when the icon looks like a path.
-- **UI icons, buttons, emotes, decorations** are referenced in `public/js/ui.js` and
-  `public/index.html` (favicon). The same "path vs. emoji" rule applies, so you can drop assets
-  in one at a time and the game falls back to the emoji for anything not yet generated.
+- **Part icons** — `CATALOG` in `public/js/parts.js` now points each `icon:` at
+  `assets/part-*.png`; the build bar in `public/js/ui.js` renders an `<img>` when the icon is a
+  path (falls back to an emoji glyph otherwise, so new/renamed parts still work).
+- **UI icons, buttons, emotes, decorations** — `public/js/ui.js` uses an `img()` helper for the
+  mascot, seed/trophy/copy/music icons, decorations, and emote pills; the Create/Join buttons
+  use the plate art as CSS backgrounds (`public/style.css`).
+- **In-world emote bubbles** — `public/js/hamster.js` draws the speech bubble on a canvas and
+  composites the emote PNG on top.
+- **Favicon** — `public/index.html` → `/assets/favicon.png`.
 
-Tell me when the assets are ready (or even a first batch) and I'll wire them in.
+To swap any asset, just overwrite the PNG in `public/assets/` with the same filename.

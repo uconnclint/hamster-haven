@@ -57,4 +57,9 @@ export const HAMSTER_COLORS = [
   { name: 'Berry',  body: 0xc97b9d, belly: 0xf0d3e0 },
 ];
 
-export const EMOTES = ['❤️', '😊', '💤', '❗'];
+export const EMOTES = [
+  'assets/emote-love.png',
+  'assets/emote-happy.png',
+  'assets/emote-sleep.png',
+  'assets/emote-alert.png',
+];

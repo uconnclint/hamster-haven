@@ -27,6 +27,16 @@ function el(tag, props = {}, kids = []) {
 }
 const hex = (n) => '#' + n.toString(16).padStart(6, '0');
 
+// ---- art assets ------------------------------------------------------------
+const A = 'assets/';
+function img(src, cls, alt = '') {
+  // src may be a bare asset name ("icon-seed.png") or a full path ("assets/x.png")
+  const url = src.includes('/') ? src : A + src;
+  return el('img', { class: cls, src: url, alt, draggable: 'false' });
+}
+// True when a value is an image path rather than an emoji glyph.
+const isPath = (s) => typeof s === 'string' && (s.endsWith('.png') || s.includes('/'));
+
 // ---- module state ----------------------------------------------------------
 const S = {
   cb: {},
@@ -130,13 +140,19 @@ export const ui = {
   setPlayers(list) {
     const arr = (list || []).slice().sort((a, b) => (b.banked || 0) - (a.banked || 0));
     S.playerList.innerHTML = '';
-    S.playerList.appendChild(el('div', { class: 'hh-pl-title', text: '🏆 Havenmates' }));
+    S.playerList.appendChild(el('div', { class: 'hh-pl-title' }, [
+      img('icon-trophy.png', 'hh-pl-trophy'),
+      el('span', { text: 'Havenmates' }),
+    ]));
     for (const p of arr) {
       const col = HAMSTER_COLORS[(p.colorIndex || 0) % HAMSTER_COLORS.length];
       const row = el('div', { class: 'hh-pl-row' + (p.you ? ' you' : '') }, [
         el('span', { class: 'hh-pl-dot', style: `background:${hex(col.body)}` }),
         el('span', { class: 'hh-pl-name', text: p.name || 'Hamster' }),
-        el('span', { class: 'hh-pl-score', text: `🌻 ${p.banked || 0}` }),
+        el('span', { class: 'hh-pl-score' }, [
+          img('icon-seed.png', 'hh-pl-seed'),
+          el('span', { text: `${p.banked || 0}` }),
+        ]),
       ]);
       S.playerList.appendChild(row);
     }
@@ -168,7 +184,9 @@ export const ui = {
           if (S.cb.onSelectPart) S.cb.onSelectPart(i);
         },
       }, [
-        el('span', { class: 'hh-build-icon', text: it.icon || '📦' }),
+        isPath(it.icon)
+          ? img(it.icon, 'hh-build-icon hh-build-img')
+          : el('span', { class: 'hh-build-icon', text: it.icon || '📦' }),
         el('span', { class: 'hh-build-key', text: String(i + 1) }),
         el('span', { class: 'hh-build-name', text: it.name || '' }),
       ]);
@@ -197,7 +215,9 @@ export const ui = {
         onclick: () => { if (S.cb.onEmote) S.cb.onEmote(i); },
       }, [
         el('span', { class: 'hh-emote-key', text: String(i + 1) }),
-        el('span', { class: 'hh-emote-face', text: e }),
+        isPath(e)
+          ? img(e, 'hh-emote-face hh-emote-img')
+          : el('span', { class: 'hh-emote-face', text: e }),
       ]));
     });
     // only when not building
@@ -232,7 +252,7 @@ function setBuildSel(i) {
 // ---- menu ------------------------------------------------------------------
 function buildMenu() {
   const title = el('div', { class: 'hh-title' }, [
-    el('div', { class: 'hh-title-emoji', text: '🐹' }),
+    el('div', { class: 'hh-title-emoji' }, [img('mascot.png', 'hh-mascot-img')]),
     wordmark('Hamster Haven'),
     el('div', { class: 'hh-subtitle', text: 'a cozy burrow to share with friends' }),
   ]);
@@ -277,7 +297,7 @@ function buildMenu() {
   const createBtn = el('button', {
     class: 'hh-btn hh-btn-primary', type: 'button',
     onclick: () => doPlay('create'),
-  }, [el('span', { text: '✨ Create World' })]);
+  }, [el('span', { text: 'Create World' })]);
 
   // join
   S.codeInput = el('input', {
@@ -313,13 +333,14 @@ function buildMenu() {
   ]);
 
   const deco = el('div', { class: 'hh-deco' });
-  const bits = ['🌻', '🐾', '🌻', '🌰', '🐾', '🌻', '🌰', '🐾'];
+  const bits = ['deco-seed.png', 'deco-paw.png', 'deco-seed.png', 'deco-acorn.png',
+                'deco-paw.png', 'deco-seed.png', 'deco-acorn.png', 'deco-paw.png'];
   bits.forEach((b, i) => {
-    deco.appendChild(el('span', {
+    const f = el('span', {
       class: 'hh-float f' + (i % 4),
       style: `left:${(i * 12 + 6) % 96}%;animation-delay:${(i * 0.9).toFixed(1)}s`,
-      text: b,
-    }));
+    }, [img(b, 'hh-float-img')]);
+    deco.appendChild(f);
   });
 
   S.menu = el('div', { class: 'hh-screen hh-menu hh-hidden' }, [deco, title, card]);
@@ -364,7 +385,7 @@ function buildConnecting() {
   S.connecting = el('div', { class: 'hh-screen hh-connecting hh-hidden' }, [
     el('div', { class: 'hh-deco' }),
     el('div', { class: 'hh-connect-card' }, [
-      el('div', { class: 'hh-spinner', text: '🐹' }),
+      el('div', { class: 'hh-spinner' }, [img('mascot.png', 'hh-spinner-img')]),
       el('div', { class: 'hh-connect-text', text: 'Scurrying to your burrow…' }),
     ]),
   ]);
@@ -380,12 +401,12 @@ function buildHud() {
   }, [
     el('span', { class: 'hh-code-label', text: 'ROOM' }),
     el('span', { class: 'hh-code-value', text: '—' }),
-    el('span', { class: 'hh-code-copy', text: '📋' }),
+    img('icon-copy.png', 'hh-code-copy'),
   ]);
 
   // seeds
   S.seedEl = el('div', { class: 'hh-chip hh-seeds' }, [
-    el('span', { class: 'hh-seed-icon', text: '🌻' }),
+    img('icon-seed.png', 'hh-seed-icon'),
     el('span', { class: 'hh-seed-carry', text: '0' }),
     el('span', { class: 'hh-seed-sep', text: 'carrying' }),
     el('span', { class: 'hh-seed-bank', text: '0' }),
@@ -398,10 +419,11 @@ function buildHud() {
     onclick: () => {
       S.musicOn = !S.musicOn;
       S.musicBtn.classList.toggle('on', S.musicOn);
-      S.musicBtn.querySelector('.hh-music-icon').textContent = S.musicOn ? '🎵' : '🔇';
+      S.musicBtn.querySelector('.hh-music-icon').src =
+        A + (S.musicOn ? 'icon-music-on.png' : 'icon-music-off.png');
       if (S.cb.onToggleMusic) S.cb.onToggleMusic(S.musicOn);
     },
-  }, [el('span', { class: 'hh-music-icon', text: '🔇' })]);
+  }, [img('icon-music-off.png', 'hh-music-icon')]);
 
   const topLeft = el('div', { class: 'hh-topleft' }, [S.codeChip, S.seedEl, S.musicBtn]);
 
@@ -433,7 +455,7 @@ function buildHud() {
 
 function copyCode() {
   const code = S.codeChip.dataset.code || S.codeChip.querySelector('.hh-code-value').textContent;
-  const done = () => { ui.toast('Room code copied! 📋'); S.codeChip.classList.remove('copied'); void S.codeChip.offsetWidth; S.codeChip.classList.add('copied'); };
+  const done = () => { ui.toast('Room code copied!'); S.codeChip.classList.remove('copied'); void S.codeChip.offsetWidth; S.codeChip.classList.add('copied'); };
   try {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(code).then(done, () => fallbackCopy(code, done));

@@ -84,7 +84,7 @@ function tubeShellColliders(part, sx, sz, len, alongZ = true) {
 export const PART_TYPES = {
 
   tube: {
-    name: 'Tube', icon: '🟡', size: [1, 1],
+    name: 'Tube', icon: 'assets/part-tube.png', size: [1, 1],
     build(part) {
       return placeGroup(part, 1, 1, tubeMesh(tubeColor(part), G + 0.4));
     },
@@ -93,7 +93,7 @@ export const PART_TYPES = {
   },
 
   tube_corner: {
-    name: 'Corner', icon: '🔄', size: [1, 1],
+    name: 'Corner', icon: 'assets/part-corner.png', size: [1, 1],
     build(part) {
       const g = new THREE.Group();
       const color = tubeColor(part);
@@ -126,7 +126,7 @@ export const PART_TYPES = {
   },
 
   tube_up: {
-    name: 'Climb Tube', icon: '🪜', size: [1, 1],
+    name: 'Climb Tube', icon: 'assets/part-climb.png', size: [1, 1],
     height: 2, // cells tall
     build(part) {
       const g = new THREE.Group();
@@ -158,7 +158,7 @@ export const PART_TYPES = {
   },
 
   ramp: {
-    name: 'Ramp', icon: '📐', size: [1, 2],
+    name: 'Ramp', icon: 'assets/part-ramp.png', size: [1, 2],
     build(part) {
       const g = new THREE.Group();
       const color = 0xd9a066;
@@ -200,7 +200,7 @@ export const PART_TYPES = {
   },
 
   platform: {
-    name: 'Platform', icon: '🟩', size: [2, 2],
+    name: 'Platform', icon: 'assets/part-platform.png', size: [2, 2],
     build(part) {
       const g = new THREE.Group();
       const slab = new THREE.Mesh(new THREE.BoxGeometry(2 * G - 1, 2.2, 2 * G - 1), mat(0x8fbf6b));
@@ -225,7 +225,7 @@ export const PART_TYPES = {
   },
 
   wheel: {
-    name: 'Wheel', icon: '☸️', size: [2, 2],
+    name: 'Wheel', icon: 'assets/part-wheel.png', size: [2, 2],
     build(part) {
       const g = new THREE.Group();
       const R = 11;
@@ -275,7 +275,7 @@ export const PART_TYPES = {
   },
 
   house: {
-    name: 'House', icon: '🏠', size: [2, 2],
+    name: 'House', icon: 'assets/part-house.png', size: [2, 2],
     build(part) {
       const g = new THREE.Group();
       const wallM = mat(0xf4a261);
@@ -325,7 +325,7 @@ export const PART_TYPES = {
   },
 
   hay: {
-    name: 'Hay Pile', icon: '🌾', size: [2, 2],
+    name: 'Hay Pile', icon: 'assets/part-hay.png', size: [2, 2],
     build(part) {
       const g = new THREE.Group();
       const mound = new THREE.Mesh(new THREE.IcosahedronGeometry(9, 1), mat(0xe9d38a));
@@ -347,7 +347,7 @@ export const PART_TYPES = {
   },
 
   fence: {
-    name: 'Fence', icon: '🚧', size: [1, 1],
+    name: 'Fence', icon: 'assets/part-fence.png', size: [1, 1],
     build(part) {
       const g = new THREE.Group();
       const m = mat(0xc9905a);

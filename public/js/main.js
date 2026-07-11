@@ -209,7 +209,7 @@ net.on('joined', (msg) => {
 
 net.on('player_joined', (msg) => {
   addRemote(msg.player);
-  ui.toast(`${msg.player.name} scurried in! 🐹`);
+  ui.toast(`${msg.player.name} scurried in!`);
   audio.play('join');
 });
 net.on('player_left', (msg) => {
@@ -251,7 +251,7 @@ net.on('deposited', (msg) => {
     banked = msg.banked;
     carrying = 0;
     ui.setSeeds(0, banked, PLAYER.maxCarry);
-    ui.toast(`Banked ${msg.n} seeds! 🌻 (${banked} total)`);
+    ui.toast(`Banked ${msg.n} seeds! (${banked} total)`);
     audio.play('deposit');
     myHamster?.userData.hamster.setCarry(0);
   } else {
@@ -263,7 +263,7 @@ net.on('deposited', (msg) => {
 
 net.on('emote', (msg) => {
   const p = players.get(msg.id);
-  p?.mesh.userData.hamster.showEmote(EMOTES[msg.e] || '❔');
+  p?.mesh.userData.hamster.showEmote(EMOTES[msg.e] || EMOTES[0]);
   audio.play('squeak');
 });
 

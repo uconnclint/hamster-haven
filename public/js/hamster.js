@@ -183,20 +183,39 @@ function makeNameSprite(name) {
   }, 256, 64, 3.2);
 }
 
-function makeEmoteSprite(emoji) {
-  return makeCanvasSprite((ctx) => {
+function makeEmoteSprite(emote) {
+  const w = 96, h = 96;
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  const drawBubble = () => {
+    ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = 'rgba(255,250,240,0.95)';
     ctx.beginPath();
-    ctx.arc(48, 44, 40, 0, Math.PI * 2);
+    ctx.arc(48, 42, 40, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.moveTo(38, 80); ctx.lineTo(48, 95); ctx.lineTo(58, 80);
+    ctx.moveTo(38, 78); ctx.lineTo(48, 94); ctx.lineTo(58, 78);
     ctx.fill();
+  };
+  drawBubble();
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true }));
+  sprite.scale.set(4.5, 4.5, 1);
+  sprite.renderOrder = 10;
+  if (typeof emote === 'string' && (emote.endsWith('.png') || emote.includes('/'))) {
+    const im = new Image();
+    im.onload = () => { drawBubble(); ctx.drawImage(im, 18, 12, 60, 60); tex.needsUpdate = true; };
+    im.src = emote.includes('/') ? emote : 'assets/' + emote;
+  } else {
     ctx.font = '52px system-ui';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(emoji, 48, 46);
-  }, 96, 96, 4.5);
+    ctx.fillText(emote, 48, 44);
+    tex.needsUpdate = true;
+  }
+  return sprite;
 }
 
 function roundRect(ctx, x, y, w, h, r) {
