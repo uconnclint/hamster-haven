@@ -344,7 +344,17 @@ function buildMenu() {
     deco.appendChild(f);
   });
 
-  S.menu = el('div', { class: 'hh-screen hh-menu hh-hidden' }, [deco, title, card]);
+  // Small teacher/parent link — tucked at the bottom so kids won't hit it by
+  // accident, but grown-ups can find it. Opens the standards guide in a new tab.
+  const teacherLink = el('a', {
+    class: 'hh-teacher-link',
+    href: './teacher-guide.html',
+    target: '_blank',
+    rel: 'noopener',
+    text: '🍎 Grown-Ups’ Corner (Teacher Guide & Standards)',
+  });
+
+  S.menu = el('div', { class: 'hh-screen hh-menu hh-hidden' }, [deco, title, card, teacherLink]);
   S.root.appendChild(S.menu);
 }
 

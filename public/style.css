@@ -165,6 +165,26 @@ html, body {
 }
 
 /* ---- menu card --------------------------------------------------------- */
+.hh-teacher-link {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+  margin-top: 18px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: rgba(255, 248, 236, 0.72);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  color: var(--ink-soft, #7a6a55);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.12s, background 0.12s;
+  animation: popIn 0.6s cubic-bezier(0.22, 1.4, 0.4, 1) both;
+  animation-delay: 0.25s;
+}
+.hh-teacher-link:hover { transform: translateY(-2px); background: rgba(255, 248, 236, 0.95); }
+
 .hh-card {
   position: relative;
   z-index: 2;

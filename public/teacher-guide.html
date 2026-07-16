@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hamster Haven — Grown-Ups' Corner: Teacher Guide &amp; Standards</title>
+<style>
+  :root {
+    --ink: #4a3626;
+    --ink-soft: #7a6a55;
+    --paper: #fff8ec;
+    --kraft: #f2e3c6;
+    --accent: #e0902f;
+    --accent-dark: #b9701c;
+    --leaf: #7fb069;
+    --leaf-dark: #5f9350;
+    --berry: #ef767a;
+    --blue: #6ec6e6;
+    --gold: #f6c453;
+    --edge: #e6d5b5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--kraft);
+    color: var(--ink);
+    font: 16px/1.62 Georgia, "Times New Roman", serif;
+  }
+  .page { max-width: 900px; margin: 0 auto; padding: 32px 28px 64px; }
+  header.masthead {
+    background: var(--paper);
+    border: 2px solid var(--edge);
+    border-radius: 20px;
+    padding: 28px 32px;
+    margin-bottom: 26px;
+    text-align: center;
+    box-shadow: 0 6px 0 rgba(120,80,30,.08);
+  }
+  h1 { font-size: 34px; margin: 0 0 6px; letter-spacing: .3px; }
+  .masthead .sub { color: var(--ink-soft); font-style: italic; margin: 0 0 16px; }
+  .badge-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .badge {
+    background: var(--accent); color: #fff; border-radius: 999px;
+    padding: 5px 15px; font: bold 13px/1.5 Verdana, sans-serif;
+  }
+  .badge.alt { background: var(--leaf); }
+  .badge.gold { background: var(--gold); color: #5b4300; }
+  h2 {
+    font-size: 25px; margin: 42px 0 4px;
+    padding-bottom: 6px; border-bottom: 3px dashed var(--edge);
+  }
+  h2 .no { color: var(--berry); margin-right: 8px; }
+  h3 { font-size: 18px; margin: 24px 0 6px; color: var(--accent-dark); }
+  p { margin: 10px 0; }
+  .card {
+    background: var(--paper);
+    border: 2px solid var(--edge);
+    border-radius: 16px;
+    padding: 18px 24px;
+    margin: 14px 0;
+    box-shadow: 0 4px 0 rgba(120,80,30,.06);
+  }
+  .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .tool {
+    background: var(--paper); border: 2px solid var(--edge);
+    border-radius: 12px; padding: 12px 16px;
+  }
+  .tool b { color: var(--accent-dark); }
+  @media (max-width: 640px) { .tools { grid-template-columns: 1fr; } }
+  table {
+    width: 100%; border-collapse: collapse; background: var(--paper);
+    border: 2px solid var(--edge); border-radius: 12px; overflow: hidden;
+    font-size: 14.5px; margin: 12px 0;
+  }
+  th {
+    background: var(--accent); color: #fff; text-align: left;
+    padding: 9px 12px; font-family: Verdana, sans-serif; font-size: 12.5px;
+  }
+  td { padding: 9px 12px; border-top: 1px solid var(--edge); vertical-align: top; }
+  td.code { white-space: nowrap; font: bold 13px/1.5 Verdana, sans-serif; color: var(--berry); }
+  table.iste th { background: var(--leaf); }
+  table.sci th { background: var(--blue); color: #16404f; }
+  table.math th { background: var(--berry); }
+  .lesson { border-left: 7px solid var(--accent); }
+  .lesson.l2 { border-left-color: var(--leaf); }
+  .lesson.l3 { border-left-color: var(--berry); }
+  .meta { font: bold 12px/1.6 Verdana, sans-serif; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; }
+  .vocab { background: #fff; border: 1.5px dashed var(--edge); border-radius: 10px; padding: 8px 14px; font-size: 14.5px; margin: 8px 0; }
+  ol.steps li { margin: 7px 0; }
+  ul.qs li { margin: 6px 0; }
+  .blk {
+    font: bold 12.5px/1.5 Verdana, sans-serif; background: #999; color: #fff;
+    border-radius: 6px; padding: 1px 7px; white-space: nowrap; display: inline-block;
+  }
+  .blk.mv { background: #4C97FF; }
+  .blk.act { background: #9966FF; }
+  .blk.se { background: #5CB1D6; }
+  .blk.ct { background: #FFAB19; color: #5b3a00; }
+  .blk.ev { background: #FFBF00; color: #5b4300; }
+  .blk.op { background: #59C059; }
+  .blk.va { background: #FF8C1A; }
+  .key { font: bold 12.5px/1.5 Verdana, sans-serif; background: var(--ink); color: #fff; border-radius: 6px; padding: 1px 8px; }
+  .note { color: var(--ink-soft); font-size: 13.5px; font-style: italic; }
+  footer { text-align: center; color: var(--ink-soft); font-size: 13px; margin-top: 40px; }
+  a { color: var(--accent-dark); }
+  .print-hint { text-align:center; margin: 6px 0 22px; }
+  .print-hint button {
+    font: bold 14px Verdana, sans-serif; background: var(--accent); color:#fff;
+    border:none; border-radius: 999px; padding: 8px 20px; cursor:pointer;
+    box-shadow: 0 3px 0 rgba(120,80,30,.25);
+  }
+  @media print {
+    body { background: #fff; }
+    .card, table, header.masthead { box-shadow: none; }
+    .print-hint, .backlink { display: none; }
+    h2 { page-break-after: avoid; }
+    .card, table { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <h1>🐹 Hamster Haven — Grown-Ups' Corner</h1>
+    <p class="sub">A teacher &amp; parent guide with standards alignment · print-friendly</p>
+    <div class="badge-row">
+      <span class="badge">Grades K–5</span>
+      <span class="badge alt">Computer Science · Engineering · Math</span>
+      <span class="badge gold">No accounts · Plays in any browser</span>
+    </div>
+  </header>
+
+  <div class="print-hint"><button onclick="window.print()">🖨️ Print this guide</button></div>
+
+  <!-- =================================================== 1. OVERVIEW -->
+  <h2><span class="no">1.</span> Overview</h2>
+  <div class="card">
+    <p><b>Hamster Haven</b> is a cozy 3-D game with two big things kids do: they <b>build</b>
+    a hamster world out of tunnels, ramps, wheels and houses, and then they <b>code</b> a
+    robot pet hamster with drag-and-drop blocks to run the world they made. It's a gentle
+    on-ramp from creative building to real computer-science thinking — sequences, loops,
+    conditionals, and variables — with an animal-habitat theme that ties naturally into
+    science and math. It runs in any web browser with nothing to install, and friends can
+    build together in the same room using a 5-letter code.</p>
+    <p class="note">Everything below describes tools that really exist in the game — nothing invented.</p>
+  </div>
+
+  <h3>The tools your students will actually use</h3>
+  <div class="tools">
+    <div class="tool"><b>Scurry &amp; Explore.</b> Kids drive their own hamster with
+      <span class="key">W A S D</span>, <span class="key">Space</span> to jump, and
+      <span class="key">Shift</span> to dash — starting in a cage and escaping into a whole bedroom.</div>
+    <div class="tool"><b>Build Mode</b> (<span class="key">B</span>). Point and click to place
+      parts on a grid: <b>tube, corner, climb tube, ramp, platform, wheel, house, hay pile,
+      fence</b>. Rotate with <span class="key">R</span>, remove with <span class="key">X</span>.
+      This is where the habitat/course gets designed.</div>
+    <div class="tool"><b>Seeds &amp; Stashing.</b> Hamsters collect sunflower seeds (cheeks
+      puff up, up to 10), then <b>stash</b> them in a house to bank them. A "Havenmates"
+      leaderboard tracks who has stored the most.</div>
+    <div class="tool"><b>Coding Mode — "Hammy's Workshop"</b> (<span class="blk ev">{ } Code</span>).
+      A Scratch-style block editor slides in; kids snap blocks together and press <b>Go</b> to
+      watch a robot pet hamster run their program through the world on the right.</div>
+    <div class="tool"><b>The block palette.</b> Categories mirror real coding:
+      <span class="blk mv">Move</span> (walk, turn, hop, <span class="blk mv">go home to nest</span>),
+      <span class="blk act">Act</span> (<span class="blk act">grab seed</span>,
+      <span class="blk act">stash seeds</span>), <span class="blk se">Sense</span>
+      (<span class="blk se">seed ahead?</span>, <span class="blk se">wall ahead?</span>,
+      <span class="blk se">at nest?</span>), <span class="blk ct">Control</span>
+      (repeat, forever, if / if-else), <span class="blk op">Operators</span>,
+      <span class="blk va">Variables</span>, and <span class="blk ev">Events</span>.</div>
+    <div class="tool"><b>Build together.</b> "Create World" makes a room with a 5-letter code;
+      up to 8 players join to build and play in the same space, with friendly emote buttons
+      (<span class="key">1</span>–<span class="key">4</span>).</div>
+  </div>
+
+  <!-- =================================================== 2. STANDARDS -->
+  <h2><span class="no">2.</span> Standards Alignment</h2>
+  <p>Codes and titles below are quoted or abbreviated from the official frameworks:
+  <b>CSTA K–12 CS Standards (2017)</b>, <b>ISTE Standards for Students (2016)</b>,
+  <b>NGSS</b>, and the <b>Common Core State Standards for Mathematics</b>. Only standards a
+  real game mechanic supports are listed.</p>
+
+  <h3>Computer Science — CSTA Level 1A (Grades K–2)</h3>
+  <table>
+    <tr><th style="width:15%">Code</th><th style="width:40%">Standard</th><th>How Hamster Haven addresses it</th></tr>
+    <tr><td class="code">1A-AP-08</td><td>Model daily processes by creating and following algorithms (sets of step-by-step instructions) to complete tasks.</td><td>In Hammy's Workshop kids snap <span class="blk ev">when ⚑ clicked</span> → <span class="blk mv">walk forward</span> → <span class="blk act">grab seed</span> into an exact step-by-step sequence the robot follows.</td></tr>
+    <tr><td class="code">1A-AP-10</td><td>Develop programs with sequences and simple loops, to express ideas or address a problem.</td><td>Wrapping <span class="blk mv">walk forward</span> + <span class="blk mv">turn right</span> in a <span class="blk ct">repeat</span> makes Hammy patrol — a first loop.</td></tr>
+    <tr><td class="code">1A-AP-11</td><td>Decompose (break down) the steps needed to solve a problem into a precise sequence of instructions.</td><td>"Fetch a seed and bring it home" is broken into walk, <span class="blk act">grab seed</span>, <span class="blk mv">go home to nest</span>, <span class="blk act">stash seeds</span>.</td></tr>
+    <tr><td class="code">1A-AP-12</td><td>Develop plans that describe a program's sequence of events, goals, and expected outcomes.</td><td>Before pressing <b>Go</b>, students predict where Hammy will end up and how many seeds he'll carry.</td></tr>
+    <tr><td class="code">1A-AP-14</td><td>Debug (identify and fix) errors in an algorithm or program that includes sequences and simple loops.</td><td>When Hammy bumps a wall, kids add a <span class="blk mv">turn</span> or change a number and re-run to fix the path.</td></tr>
+    <tr><td class="code">1A-CS-01</td><td>Select and operate appropriate software to perform a variety of tasks, and recognize that users have different needs and preferences.</td><td>Students switch between <b>Build Mode</b> to make the world and <b>Coding Mode</b> to program the hamster.</td></tr>
+    <tr><td class="code">1A-IC-17</td><td>Work respectfully and responsibly with others online.</td><td>Shared rooms (a 5-letter code) and gentle emote buttons let classmates build together kindly.</td></tr>
+  </table>
+
+  <h3 style="margin-top:26px">Computer Science — CSTA Level 1B (Grades 3–5)</h3>
+  <table>
+    <tr><th style="width:15%">Code</th><th style="width:40%">Standard</th><th>How Hamster Haven addresses it</th></tr>
+    <tr><td class="code">1B-AP-08</td><td>Compare and refine multiple algorithms for the same task and determine which is the most appropriate.</td><td>Kids test two foraging programs (wall-follow vs. straight sweep) and see which one stashes more seeds.</td></tr>
+    <tr><td class="code">1B-AP-09</td><td>Create programs that use variables to store and modify data.</td><td>A <span class="blk va">score</span> variable with <span class="blk va">change score by 1</span> on each <span class="blk act">grab seed</span> counts Hammy's harvest.</td></tr>
+    <tr><td class="code">1B-AP-10</td><td>Create programs that include sequences, events, loops, and conditionals.</td><td><span class="blk ct">forever</span> [ <span class="blk ct">if</span> <span class="blk se">seed ahead?</span> <span class="blk act">grab</span> ; <span class="blk ct">if</span> <span class="blk se">wall ahead?</span> <span class="blk mv">turn right</span> <span class="blk ct">else</span> <span class="blk mv">walk forward</span> ] uses all four.</td></tr>
+    <tr><td class="code">1B-AP-11</td><td>Decompose (break down) problems into smaller, manageable subproblems to facilitate the program development process.</td><td>"Forage and store" splits into sense → move → grab → return → stash sub-routines.</td></tr>
+    <tr><td class="code">1B-AP-15</td><td>Test and debug (identify and fix errors) a program or algorithm to ensure it runs as intended.</td><td>Students use <b>Go</b>/<b>Stop</b>, watch Hammy, and fix the conditions that send him the wrong way.</td></tr>
+    <tr><td class="code">1B-AP-16</td><td>Take on varying roles, with guidance, when collaborating with peers during the design, implementation, and review stages of program development.</td><td>In a shared room, partners split the work: one builds the course, the other codes the hamster.</td></tr>
+    <tr><td class="code">1B-AP-17</td><td>Describe choices made during program development using code comments, presentations, and demonstrations.</td><td>Students demo their program and explain <em>why</em> they used a loop or a conditional.</td></tr>
+    <tr><td class="code">1B-IC-20</td><td>Seek diverse perspectives for the purpose of improving computational artifacts.</td><td>Playtesting a friend's course and swapping feedback improves both designs.</td></tr>
+  </table>
+
+  <h3 style="margin-top:26px">Technology — ISTE Standards for Students (2016)</h3>
+  <table class="iste">
+    <tr><th style="width:26%">Standard &amp; Indicator</th><th style="width:38%">What it asks of students</th><th>In Hamster Haven</th></tr>
+    <tr><td class="code">1.5 Computational Thinker (5d)</td><td>Understand how automation works and use algorithmic thinking to develop a sequence of steps to create and test automated solutions.</td><td>Programming the robot pet to run the course by itself, then testing and refining it.</td></tr>
+    <tr><td class="code">1.5 Computational Thinker (5c)</td><td>Break problems into component parts, extract key information, and develop descriptive models to understand complex systems or facilitate problem-solving.</td><td>Decomposing "forage &amp; store" into blocks and sub-routines.</td></tr>
+    <tr><td class="code">1.4 Innovative Designer (4a)</td><td>Know and use a deliberate design process for generating ideas, testing theories, creating innovative artifacts or solving authentic problems.</td><td>Designing a habitat/course in Build Mode within the grid and part constraints.</td></tr>
+    <tr><td class="code">1.4 Innovative Designer (4d)</td><td>Exhibit a tolerance for ambiguity, perseverance and the capacity to work with open-ended problems.</td><td>Getting Hammy through a tricky maze takes several tries and tweaks.</td></tr>
+    <tr><td class="code">1.6 Creative Communicator (6b)</td><td>Create original works or responsibly repurpose or remix digital resources into new creations.</td><td>Every hamster world and program is an original student creation.</td></tr>
+    <tr><td class="code">1.7 Global Collaborator (7c)</td><td>Contribute constructively to project teams, assuming various roles and responsibilities to work effectively toward a common goal.</td><td>Building and coding together in a shared room with divided roles.</td></tr>
+    <tr><td class="code">1.2 Digital Citizen (2b)</td><td>Engage in positive, safe, legal and ethical behavior when using technology, including social interactions online.</td><td>Sharing a room code only with trusted classmates and using emotes kindly.</td></tr>
+  </table>
+
+  <h3 style="margin-top:26px">Science — Next Generation Science Standards (NGSS)</h3>
+  <table class="sci">
+    <tr><th style="width:16%">Code</th><th style="width:40%">Performance Expectation / Idea</th><th>Connection</th></tr>
+    <tr><td class="code">K-LS1-1</td><td>Use observations to describe patterns of what plants and animals (including humans) need to survive.</td><td>A good hamster home needs <b>food</b> (seeds, hay pile), <b>shelter</b> (house), <b>exercise</b> (wheel) and space to burrow (tunnels) — students build to meet those needs.</td></tr>
+    <tr><td class="code">K-2-ETS1-1</td><td>Ask questions, make observations, and gather information about a situation people want to change to define a simple problem.</td><td>"What does a hamster need to be happy?" frames the habitat as a design problem.</td></tr>
+    <tr><td class="code">K-2-ETS1-2</td><td>Develop a simple sketch, drawing, or physical model to illustrate how the shape of an object helps it function as needed.</td><td>The built cage is a 3-D model whose shapes serve functions — a tube to crawl, a ramp to climb, a wheel to run.</td></tr>
+    <tr><td class="code">3-5-ETS1-1</td><td>Define a simple design problem reflecting a need or want that includes specified criteria for success and constraints on materials, time, or cost.</td><td>Design a course Hammy can complete, within the grid and a limited number of parts (constraints).</td></tr>
+    <tr><td class="code">3-5-ETS1-2</td><td>Generate and compare multiple possible solutions to a problem based on how well each meets the criteria and constraints.</td><td>Compare two course layouts (or two programs) and judge which works better.</td></tr>
+    <tr><td class="code">3-5-ETS1-3</td><td>Plan and carry out fair tests in which variables are controlled and failure points are considered to identify aspects of a model or prototype that can be improved.</td><td>Run two forager programs on the same course (fair test); each wall-bump is a failure point that guides the next fix.</td></tr>
+  </table>
+
+  <h3 style="margin-top:26px">Math — Common Core State Standards (CCSS-M)</h3>
+  <table class="math">
+    <tr><th style="width:16%">Code</th><th style="width:40%">Standard (abbreviated)</th><th>Connection</th></tr>
+    <tr><td class="code">K.CC.B.5</td><td>Count to answer "how many?" questions about as many as 20 things arranged in a line…</td><td>Counting seeds in Hammy's cheeks and the number banked.</td></tr>
+    <tr><td class="code">K.G.A.1</td><td>Describe objects in the environment using names of shapes, and describe their relative positions using terms such as above, below, beside, in front of, behind, next to.</td><td>Placing parts and reasoning about Hammy's position — what's <em>ahead</em>, <em>behind</em>, <em>next to</em> him.</td></tr>
+    <tr><td class="code">3.OA.A.1</td><td>Interpret products of whole numbers, e.g., interpret 5 × 7 as the total number of objects in 5 groups of 7 objects each.</td><td><span class="blk ct">repeat 5</span> [ <span class="blk mv">walk forward 2</span> ] = 5 groups of 2 = 10 squares — a loop <em>is</em> repeated groups.</td></tr>
+    <tr><td class="code">4.MD.C.5</td><td>Recognize angles as geometric shapes formed where two rays share an endpoint, and understand angle measurement (a right-angle turn is a quarter of a full turn).</td><td><span class="blk mv">turn right</span> / <span class="blk mv">turn left</span> are 90° quarter-turns; four of them bring Hammy full circle.</td></tr>
+    <tr><td class="code">5.G.A.1–2</td><td>Use a pair of perpendicular number lines (axes) to define a coordinate system; graph and interpret points in the first quadrant.</td><td>The robot moves on a <b>column</b>/<b>row</b> grid; the <span class="blk mv">column</span> and <span class="blk mv">row</span> reporter blocks are coordinates.</td></tr>
+  </table>
+
+  <!-- =================================================== 3. LESSONS -->
+  <h2><span class="no">3.</span> Three Ready-to-Run Lessons</h2>
+
+  <div class="card lesson">
+    <h3 style="margin-top:0">Lesson 1 · Build a Happy Hamster Home 🏠 (Grades K–2, ~20 min)</h3>
+    <div class="meta">Objective · Design a habitat that meets an animal's needs, then give Hammy a 3-step program.</div>
+    <div class="vocab"><b>Vocabulary:</b> habitat, needs (food · shelter · exercise), sequence, program, grid.</div>
+    <ol class="steps">
+      <li>Talk first: "What does a real hamster need to be happy and healthy?" List <b>food, a home, exercise, room to explore</b>.</li>
+      <li>Press <span class="key">B</span> for <b>Build Mode</b>. Have students place a <b>house</b> (shelter), a <b>hay pile</b> (food), a <b>wheel</b> (exercise), and a couple of <b>tubes</b> (exploring) on the grid.</li>
+      <li>Escape the cage and scurry the hamster around the new home with <span class="key">W A S D</span> — does it feel like a happy place?</li>
+      <li>Open <span class="blk ev">{ } Code</span>. Together, drag <span class="blk ev">when ⚑ clicked</span>, then <span class="blk mv">walk forward 3</span>, then <span class="blk act">grab seed</span>. Press <b>Go</b>.</li>
+      <li>Predict, then check: did Hammy reach the seed? If not, change the number and try again (first debugging!).</li>
+    </ol>
+    <b>Discussion:</b>
+    <ul class="qs">
+      <li>Which part of your build takes care of which hamster need?</li>
+      <li>What does the word "program" mean now that you've made one?</li>
+      <li>Your first try didn't work perfectly — what did you change to fix it?</li>
+    </ul>
+  </div>
+
+  <div class="card lesson l2">
+    <h3 style="margin-top:0">Lesson 2 · Teach Hammy to Fetch 🥜 (Grades 2–4, ~30 min)</h3>
+    <div class="meta">Objective · Write a multi-step program that collects a seed and returns it to the nest; add a loop.</div>
+    <div class="vocab"><b>Vocabulary:</b> algorithm, decompose, loop / repeat, nest, iterate.</div>
+    <ol class="steps">
+      <li>In <b>Build Mode</b>, place one <b>house</b> (this becomes the <b>nest</b>) and scatter a short path of tubes/ramps leading away from it.</li>
+      <li><b>Decompose the goal</b> out loud: "Fetch a seed" = go to the seed → <span class="blk act">grab seed</span> → <span class="blk mv">go home to nest</span> → <span class="blk act">stash seeds</span>.</li>
+      <li>Build that sequence under <span class="blk ev">when ⚑ clicked</span> using <span class="blk mv">walk forward</span>, <span class="blk mv">turn right</span>, and the Act blocks. Press <b>Go</b>.</li>
+      <li>When Hammy bumps a wall or misses, use <b>Stop</b>, adjust a turn or a step count, and re-run. Name this the <b>iterate</b> loop of coding.</li>
+      <li>Now make him greedy: wrap the walk-and-grab steps in a <span class="blk ct">repeat 4</span> so he fetches again and again. Watch the cheeks fill.</li>
+      <li>Challenge: add <span class="blk act">say "Got it!"</span> or a <span class="blk act">show happy</span> emote when he stashes.</li>
+    </ol>
+    <b>Discussion:</b>
+    <ul class="qs">
+      <li>How did breaking "fetch" into small steps make it easier to build?</li>
+      <li>What does the <span class="blk ct">repeat</span> block save you from doing by hand?</li>
+      <li>Where did your program go wrong, and how did you find the bug?</li>
+    </ul>
+  </div>
+
+  <div class="card lesson l3">
+    <h3 style="margin-top:0">Lesson 3 · The Smart Forager 🌻 (Grades 4–5, ~30 min)</h3>
+    <div class="meta">Objective · Use conditionals, a variable, and a loop to build a self-driving forager; compare two algorithms with a fair test.</div>
+    <div class="vocab"><b>Vocabulary:</b> conditional (if / else), condition, variable, sensor, efficiency, fair test.</div>
+    <ol class="steps">
+      <li>Make a variable called <span class="blk va">score</span> (the ➕ entry in the Variables palette).</li>
+      <li>Build a <b>self-driving</b> program: <span class="blk ev">when ⚑ clicked</span> → <span class="blk ct">forever</span> [
+        <span class="blk ct">if</span> <span class="blk se">on a seed?</span> then <span class="blk act">grab seed</span> and <span class="blk va">change score by 1</span> ;
+        <span class="blk ct">if</span> <span class="blk se">wall ahead?</span> then <span class="blk mv">turn right</span> <span class="blk ct">else</span> <span class="blk mv">walk forward 1</span> ].</li>
+      <li>Press <b>Go</b> and watch Hammy sense his way around the course on his own. This is <b>automation</b>.</li>
+      <li>Design a <b>second</b> algorithm (for example, always sweep in straight lines and only turn at the edge). Run each on the <b>same</b> course for the same time — a <b>fair test</b>.</li>
+      <li>Compare the two <span class="blk va">score</span> values. Which algorithm was more <b>efficient</b>? Why?</li>
+      <li>Refine the winner: can a small change (a different turn, an extra condition) collect even more?</li>
+    </ol>
+    <b>Discussion:</b>
+    <ul class="qs">
+      <li>How does the <span class="blk se">wall ahead?</span> sensor let Hammy make decisions without you?</li>
+      <li>What made your fair test <em>fair</em> — what did you keep the same?</li>
+      <li>If you could add one new sense block, what would it do and why?</li>
+    </ul>
+  </div>
+
+  <!-- =================================================== 4. CONVERSATION -->
+  <h2><span class="no">4.</span> Conversation Starters</h2>
+  <div class="card">
+    <ul class="qs">
+      <li>"Walk me through your program like <em>you're</em> the hamster — what do you do first, next, last?"</li>
+      <li>"Where did it go wrong the first time? How did you figure out what to fix?"</li>
+      <li>"You used a <span class="blk ct">repeat</span> (or <span class="blk ct">if</span>) block — what would happen if you took it out?"</li>
+      <li>"Which of a real hamster's needs does your build take care of? What's missing?"</li>
+      <li>"If a friend played your world, what's the trickiest part they'd hit?"</li>
+      <li>"What's one thing you'd add next time, and what block would you need?"</li>
+    </ul>
+  </div>
+
+  <!-- =================================================== 5. RUBRIC -->
+  <h2><span class="no">5.</span> Capstone Rubric — "Design &amp; Code Your Own Hamster Challenge"</h2>
+  <div class="card">
+    <p>Students build a small course <em>and</em> write a program that guides Hammy through it to
+    collect and stash at least a few seeds, then explain how it works.</p>
+    <table>
+      <tr>
+        <th style="width:22%">Criterion</th>
+        <th>🌱 Sunflower Sprout (Emerging)</th>
+        <th>🌿 Busy Builder (Proficient)</th>
+        <th>🌻 Master Maker (Exemplary)</th>
+      </tr>
+      <tr>
+        <td class="code" style="color:var(--accent-dark)">Habitat &amp; course design</td>
+        <td>Places a few parts; course is mostly decorative.</td>
+        <td>Builds a clear path with a nest that meets several hamster needs.</td>
+        <td>Purposeful course with challenge (turns, climbs) and every need met; considers the player's experience.</td>
+      </tr>
+      <tr>
+        <td class="code" style="color:var(--accent-dark)">Program / algorithm</td>
+        <td>A short sequence of Move/Act blocks that runs.</td>
+        <td>Uses a <span class="blk ct">loop</span> and completes the fetch-and-stash goal.</td>
+        <td>Combines a <span class="blk ct">loop</span>, a <span class="blk ct">conditional</span> with a <span class="blk se">sensor</span>, and a <span class="blk va">variable</span> to forage automatically.</td>
+      </tr>
+      <tr>
+        <td class="code" style="color:var(--accent-dark)">Testing &amp; debugging</td>
+        <td>Runs once; leaves errors in.</td>
+        <td>Tests, finds a bug, and fixes it.</td>
+        <td>Iterates repeatedly and compares two approaches to improve the result.</td>
+      </tr>
+      <tr>
+        <td class="code" style="color:var(--accent-dark)">Explaining the thinking</td>
+        <td>Names a block or two.</td>
+        <td>Walks through the program step by step.</td>
+        <td>Explains <em>why</em> each loop/conditional/variable was chosen and what it does.</td>
+      </tr>
+    </table>
+  </div>
+
+  <footer>
+    <p class="backlink">🐹 Made for Hamster Haven · <a href="./index.html">← back to the game</a></p>
+    <p>Standard excerpts are quoted or abbreviated for classroom use; see CSTA, ISTE, NGSS,
+    and Common Core for full official text.</p>
+  </footer>
+
+</div>
+</body>
+</html>
