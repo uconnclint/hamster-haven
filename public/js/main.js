@@ -1,6 +1,6 @@
 // Hamster Haven — main orchestrator.
 import * as THREE from 'three';
-import { GRID, PLAYER, NET, EMOTES, PALETTE } from './config.js';
+import { GRID, PLAYER, NET, EMOTES, PALETTE, CAGE, ROOM } from './config.js';
 import { buildWorld } from './world.js';
 import { Physics } from './physics.js';
 import { PlayerController } from './player.js';
@@ -10,6 +10,8 @@ import { BuildMode } from './build.js';
 import { Net } from './net.js';
 import { ui } from './ui.js';
 import { audio } from './audio.js';
+import { createCoder } from './coding.js';
+import { createCodingHamster } from './codingHamster.js';
 
 // ------------------------------------------------------------ boot safety
 
@@ -82,6 +84,15 @@ const partMeshes = new Map();  // partId -> mesh
 const seedMeshes = new Map();  // seedId -> mesh
 let lastDepositAt = 0;
 let lastWheelSfx = 0;
+
+// Coding Mode state (initialized in initCoding(); all guarded so a coding
+// failure can never break the core game).
+let coder = null;
+let codingHamster = null;
+let codingOpen = false;
+let saySprite = null, sayUntil = 0;
+let codingBanked = 0;         // the robot's own stash tally (separate from the player)
+const codingKeys = new Set(); // Scratch key names currently held
 
 // mouse position in normalized device coords, for build-mode cursor aiming
 const mouseNdc = new THREE.Vector2(0, 0);
@@ -219,6 +230,7 @@ let myName = 'Hamster', myColor = 0;
 
 net.on('joined', (msg) => {
   joined = true;
+  if (codingHamster) codingHamster.visible = true;
   ui.showHUD(msg.code);
   ui.setSeeds(0, 0, PLAYER.maxCarry);
   ui.hint('WASD scurry · Space jump · Shift dash · B build · 1-4 emotes');
@@ -316,6 +328,7 @@ ui.init({
   onEmote(i) { if (joined) { net.emote(i); myHamster?.userData.hamster.showEmote(EMOTES[i]); audio.play('squeak'); } },
   onSelectPart(i) { build.setSelected(i); ui.setBuildSelected(build.sel); audio.play('click'); },
   onToggleMusic(on) { audio.setMusicOn(on); },
+  onCode() { if (joined) setCodingMode(true); },
 });
 ui.showMenu();
 bootOk = true; // menu is up; from here errors are non-fatal to boot
@@ -341,6 +354,12 @@ function toggleBuild() {
 
 document.addEventListener('keydown', (e) => {
   if (!joined) return;
+  if (codingOpen) {
+    // While Coding Mode is open the panel owns the keyboard (block inputs,
+    // key-hat scripts). Don't let digits/B trigger emotes or build mode.
+    if (e.code === 'Escape') setCodingMode(false);
+    return;
+  }
   if (e.code === 'KeyB') { toggleBuild(); return; }
   if (build.active) {
     if (e.code === 'KeyR') { build.rotate(); audio.play('rotate'); }
@@ -372,6 +391,232 @@ canvas.addEventListener('mousedown', (e) => {
   }
 });
 document.addEventListener('contextmenu', (e) => { if (build.active) e.preventDefault(); });
+
+// ------------------------------------------------------------ coding mode
+//
+// A local (non-networked) robot hamster driven by the block interpreter in
+// coding.js. Grid mapping: cellToWorld(col,row) = { x: col*GRID, z: row*GRID }
+// on the cage-floor plane (y = CAGE.floorY); north=-z, east=+x, south=+z,
+// west=-x. Walls come from physics.colliders() probed at cell centers.
+
+const CODER_SPAWN = { col: 16, row: -16, heading: 'south' }; // inside the cage
+
+function coderCellToWorld(col, row) { return { x: col * GRID, z: row * GRID }; }
+
+// A cell is blocked when a collider intersects a small AABB at the cell
+// center between floorY+1 and floorY+6 (the floor itself tops out at/below
+// floorY, so it never counts). A slightly wider probe catches low, thin
+// walls (fences) that sit on the edge between two cells.
+function coderIsBlocked(col, row) {
+  const w = coderCellToWorld(col, row);
+  if (Math.abs(w.x) > ROOM.x / 2 - 2 || Math.abs(w.z) > ROOM.z / 2 - 2) return true;
+  const y0 = CAGE.floorY + 1, y1 = CAGE.floorY + 6;
+  const TIGHT = 4, WIDE = 5.5;
+  for (const c of physics.colliders()) {
+    if (c.max.y <= y0 || c.min.y >= y1) continue;
+    const hits = (h) => c.max.x > w.x - h && c.min.x < w.x + h && c.max.z > w.z - h && c.min.z < w.z + h;
+    if (hits(TIGHT)) return true;
+    if (c.max.y - c.min.y <= 9.5 && hits(WIDE)) return true; // fence-like low walls
+  }
+  return false;
+}
+
+// A cell is a gap when nothing solid supports it near the floor plane
+// (cage bedding counts; the desk top, 3cm below, counts too).
+function coderIsGap(col, row) {
+  const w = coderCellToWorld(col, row);
+  if (w.x > CAGE.cx - CAGE.w / 2 && w.x < CAGE.cx + CAGE.w / 2 &&
+      w.z > CAGE.cz - CAGE.d / 2 && w.z < CAGE.cz + CAGE.d / 2) return false;
+  for (const c of physics.colliders()) {
+    if (c.max.y < CAGE.floorY - 8 || c.max.y > CAGE.floorY + 1) continue;
+    if (c.max.x > w.x - 4 && c.min.x < w.x + 4 && c.max.z > w.z - 4 && c.min.z < w.z + 4) return false;
+  }
+  return true;
+}
+
+function coderSeedAt(col, row) {
+  const w = coderCellToWorld(col, row);
+  let best = null, bestD = Infinity;
+  for (const [id, m] of seedMeshes) {
+    if (Math.abs(m.userData.baseY - (CAGE.floorY + 1.6)) > 8) continue; // off-plane seeds
+    const d = Math.max(Math.abs(m.position.x - w.x), Math.abs(m.position.z - w.z));
+    if (d <= GRID * 0.55 && d < bestD) { bestD = d; best = id; }
+  }
+  return best;
+}
+
+function coderNestCell() {
+  for (const zones of physics.partZones.values()) {
+    for (const z of zones) {
+      if (z.type !== 'bank') continue;
+      return {
+        col: Math.round((z.min.x + z.max.x) / 2 / GRID),
+        row: Math.round((z.min.z + z.max.z) / 2 / GRID),
+      };
+    }
+  }
+  return null;
+}
+
+function coderAtNest(col, row) {
+  const w = coderCellToWorld(col, row);
+  for (const zones of physics.partZones.values()) {
+    for (const z of zones) {
+      if (z.type !== 'bank') continue;
+      if (w.x > z.min.x - 1 && w.x < z.max.x + 1 && w.z > z.min.z - 1 && w.z < z.max.z + 1) return true;
+    }
+  }
+  return false;
+}
+
+// Speech bubble above the robot hamster (canvas sprite, like name tags).
+function setCoderSay(text, secs) {
+  if (!codingHamster) return;
+  if (saySprite) { codingHamster.remove(saySprite); saySprite = null; }
+  sayUntil = 0;
+  const t = String(text == null ? '' : text).trim();
+  if (!t) return;
+  const cv = document.createElement('canvas');
+  cv.width = 256; cv.height = 64;
+  const c2 = cv.getContext('2d');
+  c2.font = 'bold 28px ui-rounded, system-ui, sans-serif';
+  const tw = Math.min(244, c2.measureText(t).width + 26);
+  const x = 128 - tw / 2, y = 8, h = 44, r = 14;
+  c2.fillStyle = 'rgba(255,250,240,0.95)';
+  c2.beginPath();
+  c2.moveTo(x + r, y);
+  c2.arcTo(x + tw, y, x + tw, y + h, r);
+  c2.arcTo(x + tw, y + h, x, y + h, r);
+  c2.arcTo(x, y + h, x, y, r);
+  c2.arcTo(x, y, x + tw, y, r);
+  c2.closePath();
+  c2.fill();
+  c2.fillStyle = '#4a3626';
+  c2.textAlign = 'center';
+  c2.textBaseline = 'middle';
+  c2.fillText(t, 128, 30, 232);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  saySprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true }));
+  saySprite.scale.set(3.2 * 4, 3.2, 1);
+  saySprite.position.set(0, 10.5, 0);
+  saySprite.renderOrder = 10;
+  codingHamster.add(saySprite);
+  if (secs > 0) sayUntil = performance.now() + secs * 1000;
+}
+
+const CODER_EMOTES = { love: 0, happy: 1, sleep: 2, alert: 3 };
+
+function setCodingMode(on) {
+  const panel = document.getElementById('coding-panel');
+  if (!panel || !coder || on === codingOpen) return;
+  codingOpen = on;
+  if (on) {
+    if (build.active) toggleBuild();     // leave build mode first
+    player.enabled = false;              // pause player control (like build mode, but full stop)
+    player.buildMode = true;             // clicks don't grab pointer lock
+    document.exitPointerLock?.();
+    panel.classList.add('open');
+    try { window.CtrlCreate?.workspace?.render(); } catch (err) { /* editor optional */ }
+    coder.hatsEnabled = true;
+    ui.hint('Snap blocks together on the left — watch Hammy run them on the right!');
+  } else {
+    panel.classList.remove('open');
+    player.enabled = joined;
+    player.buildMode = false;
+    coder.hatsEnabled = coder.running;   // a running program keeps its key hats
+    ui.hint('WASD scurry · Space jump · Shift dash · B build · 1-4 emotes');
+  }
+  audio.play('click');
+}
+
+function initCoding() {
+  try {
+    // Scripts live under the "hammy" sprite bucket.
+    window.CtrlCreate?.workspace?.setSprite('hammy');
+
+    codingHamster = createCodingHamster(0);
+    codingHamster.visible = false; // shown once we join a room
+    const w0 = coderCellToWorld(CODER_SPAWN.col, CODER_SPAWN.row);
+    codingHamster.position.set(w0.x, CAGE.floorY + 3, w0.z);
+    scene.add(codingHamster);
+
+    // Scratch-named key set for `key pressed?` sensing.
+    const scratchKey = (e) => {
+      if (e.key === ' ') return 'space';
+      if (e.key === 'ArrowUp') return 'up arrow';
+      if (e.key === 'ArrowDown') return 'down arrow';
+      if (e.key === 'ArrowLeft') return 'left arrow';
+      if (e.key === 'ArrowRight') return 'right arrow';
+      return e.key && e.key.length === 1 ? e.key.toLowerCase() : null;
+    };
+    document.addEventListener('keydown', (e) => {
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
+      const k = scratchKey(e);
+      if (k) codingKeys.add(k);
+    });
+    document.addEventListener('keyup', (e) => { const k = scratchKey(e); if (k) codingKeys.delete(k); });
+    window.addEventListener('blur', () => codingKeys.clear());
+
+    coder = createCoder({
+      GRID,
+      spawn: CODER_SPAWN,
+      cellToWorld: coderCellToWorld,
+      floorY: CAGE.floorY,
+      isBlocked: coderIsBlocked,
+      isGap: coderIsGap,
+      seedAt: coderSeedAt,
+      collectSeed(id) {
+        // The robot has its OWN economy (coder.cheeks) — collecting is local so
+        // it never fills the player's carrying/HUD. Robot is local-only in v1.
+        removeSeed(id, true);
+        audio.play('collect');
+      },
+      nestCell: coderNestCell,
+      atNest: coderAtNest,
+      bankSeeds(n) {
+        codingBanked += n;
+        audio.play('deposit');
+        ui.toast(`Hammy stashed ${n} seed${n === 1 ? '' : 's'}! (${codingBanked} total)`);
+      },
+      keys: codingKeys,
+      onMove(col, row) {
+        if (Math.random() < 0.35) {
+          const w = coderCellToWorld(col, row);
+          particles.burst(w.x, CAGE.floorY + 1, w.z, 1, 10, 10);
+        }
+      },
+      onAnim(name) {
+        if (name === 'bump') {
+          audio.play('denied');
+          const w = coder ? coder.worldPos : null;
+          if (w) particles.burst(w.x, w.y + 4, w.z, 4, 16, 14);
+        } else if (name === 'hop') {
+          audio.play('jump');
+        }
+      },
+      emote(name) {
+        const i = CODER_EMOTES[name] ?? 1;
+        codingHamster?.userData.hamster.showEmote(EMOTES[i]);
+        audio.play('squeak');
+      },
+      say: setCoderSay,
+      squeak() { audio.play('squeak', { pitch: 1.25 }); },
+      toast(msg) { ui.toast(msg); },
+      setMonitor() { /* no variable watchers in v1 */ },
+    });
+    coder.hatsEnabled = false; // armed when the panel opens
+
+    document.getElementById('coding-run')?.addEventListener('click', () => { coder?.run(); audio.play('click'); });
+    document.getElementById('coding-stop')?.addEventListener('click', () => { coder?.stop(); audio.play('click'); });
+    document.getElementById('coding-close')?.addEventListener('click', () => setCodingMode(false));
+  } catch (err) {
+    console.error('Coding Mode failed to initialize:', err);
+    coder = null;
+  }
+}
+initCoding();
 
 // ------------------------------------------------------------ main loop
 
@@ -479,6 +724,23 @@ function tick(forceDt) {
     }
   }
 
+  // coding hamster (local robot pet): interpreter owns the grid position,
+  // the mesh just follows the tweened world position.
+  if (joined && coder && codingHamster) {
+    try {
+      coder.update(dt);
+      const wp = coder.worldPos;
+      codingHamster.position.set(wp.x, wp.y + 3, wp.z);
+      codingHamster.rotation.y += shortestAngle(codingHamster.rotation.y, coder.yaw) * Math.min(1, dt * 14);
+      codingHamster.userData.hamster.animate(dt, coder.speedNorm, true);
+      codingHamster.userData.hamster.setCarry(Math.min(1, coder.cheeks / 8));
+      if (saySprite && sayUntil && performance.now() > sayUntil) setCoderSay('', 0);
+    } catch (err) {
+      console.error('Coding update error:', err);
+      coder = null; // never let a coding bug take down the game loop
+    }
+  }
+
   // seeds bob & spin
   for (const m of seedMeshes.values()) {
     m.rotation.y += dt * 2;
@@ -509,4 +771,9 @@ window.__game = {
   player, camera, physics, net, build, world, scene, players, partMeshes, seedMeshes,
   step: (n = 1, dt = 1 / 60) => { for (let i = 0; i < n; i++) tick(dt); },
   get carrying() { return carrying; }, get banked() { return banked; },
+  get coder() { return coder; },
+  get codingHamster() { return codingHamster; },
+  get codingOpen() { return codingOpen; },
+  openCoding: () => setCodingMode(true),
+  closeCoding: () => setCodingMode(false),
 };

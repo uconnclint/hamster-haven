@@ -1,0 +1,272 @@
+/* ============================================================================
+ * SCRATCHY — blocks.css
+ * Papercut coding blocks. Owned by the block renderer (blockRender.js).
+ * Category colors arrive per-block as inline vars: --blk / --blk-edge.
+ * ==========================================================================*/
+
+/* ---------------------------------------------------------------- stacks -- */
+.stack {
+  position: absolute;
+  filter: drop-shadow(3px 4px 0 rgba(58, 50, 38, 0.22));
+  touch-action: none;
+}
+.stack.dragging {
+  pointer-events: none;
+  z-index: 999;
+  filter: drop-shadow(6px 9px 0 rgba(58, 50, 38, 0.28));
+  transform: scale(1.04) rotate(-0.8deg);
+  transition: transform 0.08s ease-out;
+}
+
+/* ----------------------------------------------------------------- block -- */
+.blk {
+  position: relative;
+  width: max-content;
+  min-height: 34px;
+  background: var(--blk);
+  color: #fff;
+  font: 600 13px/1 -apple-system, "SF Pro Rounded", "Segoe UI", ui-rounded, sans-serif;
+  border: 1.5px solid var(--blk-edge);
+  border-radius: 6px 8px 7px 5px / 7px 5px 8px 6px; /* hand-cut wobble */
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  cursor: grab;
+  /* crisp 1px cut-edge that follows a clip-path silhouette (used by the
+     notched/bumped shapes, which drop their CSS border) */
+  --edge:
+    drop-shadow(0 -1px 0 var(--blk-edge)) drop-shadow(0 1px 0 var(--blk-edge))
+    drop-shadow(1px 0 0 var(--blk-edge)) drop-shadow(-1px 0 0 var(--blk-edge));
+}
+.blk:active { cursor: grabbing; }
+
+/* header row: labels + inputs */
+.blk-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px 7px 10px;
+  min-height: 34px;
+  box-sizing: border-box;
+}
+.blk-label { white-space: nowrap; text-shadow: 0 1px 0 rgba(0,0,0,0.18); }
+
+/* paper tab: the bottom connector "bump". Hat blocks use this element;
+   stack / C-foot draw their bump directly in the clip-path instead. */
+.blk-tab {
+  position: absolute;
+  bottom: -5px;
+  left: 13px;
+  width: 16px;
+  height: 6px;
+  background: var(--blk);
+  border: 1.5px solid var(--blk-edge);
+  border-top: none;
+  border-radius: 0 0 5px 6px / 0 0 6px 5px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------- puzzle-piece geometry --
+   NOTCH  = concave cut in the top-left  -> "something connects ABOVE me"
+   BUMP   = convex tab on the bottom-left -> "something connects BELOW me"
+   Hat (event) blocks deliberately OMIT the top notch: that smooth top is the
+   visual signal that a script must START with an event. The notch is a real
+   clip-path cutout, so the bump of the block above shows THROUGH it — the two
+   interlock like paper puzzle pieces. Notch/bump span x:13–29, depth 5px. */
+
+/* stack: top notch + bottom bump */
+.shape-stack {
+  border: none;
+  border-radius: 0;
+  padding-bottom: 5px;               /* reserves the bump zone */
+  filter: var(--edge);
+  clip-path: polygon(
+    0 0,
+    13px 0, 15px 5px, 27px 5px, 29px 0,          /* ▼ top notch */
+    100% 0,
+    100% calc(100% - 5px),
+    29px calc(100% - 5px), 27px 100%, 15px 100%, 13px calc(100% - 5px),  /* ▲ bump */
+    0 calc(100% - 5px)
+  );
+}
+.shape-stack > .blk-tab { display: none; }   /* bump lives in the clip-path */
+
+/* cap: top notch, flat bottom (nothing may follow) */
+.shape-cap {
+  border: none;
+  border-radius: 0;
+  filter: var(--edge);
+  clip-path: polygon(
+    0 0, 13px 0, 15px 5px, 27px 5px, 29px 0, 100% 0,
+    100% 100%, 0 100%
+  );
+}
+.shape-cap > .blk-tab { display: none; }
+
+/* ---------------------------------------------------------------- shapes -- */
+.shape-hat {
+  border-top-left-radius: 22px 16px;
+  border-top-right-radius: 22px 16px;
+}
+.shape-hat > .blk-row { padding-top: 9px; }
+
+/* reporter: pill */
+.shape-reporter {
+  border-radius: 999px;
+  min-height: 26px;
+}
+.shape-reporter > .blk-row { min-height: 26px; padding: 3px 10px 4px; }
+
+/* boolean: hexagon-ish cut */
+.shape-boolean {
+  min-height: 26px;
+  border-radius: 4px;
+  clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 50%, calc(100% - 9px) 100%, 9px 100%, 0 50%);
+  border: none;
+  box-shadow: inset 0 0 0 1.5px var(--blk-edge);
+}
+.shape-boolean > .blk-row { min-height: 26px; padding: 3px 14px 4px; }
+
+/* C-blocks: header / mouth / foot column. Header gets a top notch; the foot
+   gets a bottom bump. The whole C silhouette is edged with one drop-shadow. */
+.shape-c, .shape-c2 {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  filter: var(--edge);
+}
+.shape-c > .blk-row, .shape-c2 > .blk-row,
+.blk-mid, .blk-foot {
+  background: var(--blk);
+  border: none;
+}
+.shape-c > .blk-row, .shape-c2 > .blk-row {
+  width: max-content;
+  min-width: 120px;
+  clip-path: polygon(0 0, 13px 0, 15px 5px, 27px 5px, 29px 0, 100% 0, 100% 100%, 0 100%);
+}
+.blk-mouth {
+  position: relative;
+  margin-left: 0;
+  border-left: 16px solid var(--blk);
+  min-height: 26px;
+  min-width: 96px;
+  padding: 5px 0 6px 4px;
+  box-sizing: border-box;
+}
+.blk-mouth .stack-inner { position: relative; }
+.blk-mid {
+  width: max-content;
+  min-width: 120px;
+  padding: 4px 12px 5px 10px;
+  font-weight: 600;
+}
+.blk-foot {
+  height: 16px;
+  width: 100%;
+  min-width: 120px;
+  position: relative;
+  clip-path: polygon(
+    0 0, 100% 0, 100% calc(100% - 5px),
+    29px calc(100% - 5px), 27px 100%, 15px 100%, 13px calc(100% - 5px), 0 calc(100% - 5px)
+  );
+}
+.blk-foot .blk-tab { display: none; }        /* foot bump is in the clip-path */
+
+/* nested chain: blocks tuck together so each bump seats into the next notch */
+.chain { display: flex; flex-direction: column; align-items: flex-start; }
+.chain > .blk { margin-top: -5px; }
+.chain > .blk:first-child { margin-top: 0; }
+
+/* ---------------------------------------------------------------- inputs -- */
+.blk-in {
+  height: 22px;
+  min-width: 30px;
+  max-width: 110px;
+  padding: 0 8px;
+  border: 1px solid var(--blk-edge);
+  border-radius: 999px;
+  background: #fffdf7;
+  color: #3a3226;
+  font: 600 12px/1 inherit;
+  font-family: inherit;
+  text-align: center;
+  outline: none;
+  box-shadow: inset 1px 1px 0 rgba(58,50,38,0.12);
+}
+.blk-in:focus { box-shadow: 0 0 0 2.5px rgba(255,255,255,0.55), inset 1px 1px 0 rgba(58,50,38,0.12); }
+.blk-in[data-kind="text"] { text-align: left; }
+.blk-in[type="color"] {
+  padding: 0; width: 30px; min-width: 30px; border-radius: 6px;
+  background: none; height: 22px; cursor: pointer;
+}
+
+.blk-dd {
+  height: 22px;
+  padding: 0 4px;
+  border: 1px solid var(--blk-edge);
+  border-radius: 999px;
+  background: rgba(0,0,0,0.14);
+  color: #fff;
+  font: 600 12px/1 inherit;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+}
+.blk-dd option { color: #3a3226; background: #fffdf7; }
+
+/* empty boolean slot */
+.blk-slot {
+  display: inline-flex;
+  align-items: center;
+  min-width: 34px;
+  height: 20px;
+  background: rgba(0,0,0,0.22);
+  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 50%, calc(100% - 7px) 100%, 7px 100%, 0 50%);
+}
+/* slot hosting a dropped reporter/boolean */
+.slot-host { display: inline-flex; align-items: center; }
+.slot-host .blk { position: relative; filter: none; }
+.slot-host .blk .blk-row { padding-top: 2px; padding-bottom: 3px; min-height: 24px; }
+
+/* --------------------------------------------------------------- palette -- */
+.palette-sep {
+  margin: 14px 8px 6px;
+  font: 800 12px/1 -apple-system, "SF Pro Rounded", "Segoe UI", ui-rounded, sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink, #3a3226);
+  opacity: 0.65;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.palette-sep::after { content: ""; flex: 1; border-top: 2px dashed rgba(58,50,38,0.25); }
+.palette-block {
+  position: relative;
+  margin: 8px 10px;
+  width: max-content;
+  filter: drop-shadow(2px 3px 0 rgba(58,50,38,0.18));
+  cursor: grab;
+}
+.palette-block .blk { pointer-events: none; }  /* drag starts on wrapper */
+.palette-block:hover { transform: translate(-1px,-1px) rotate(-0.4deg); }
+.palette-block:hover .blk { box-shadow: 0 0 0 2px rgba(255,255,255,0.35); }
+
+/* ------------------------------------------------------------ indicators -- */
+.snap-indicator {
+  position: absolute;
+  height: 8px;
+  width: 120px;
+  background: rgba(58,50,38,0.35);
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 998;
+  display: none;
+}
+.snap-indicator.on { display: block; }
+.slot-glow { box-shadow: 0 0 0 3px #ffe45c, inset 1px 1px 0 rgba(58,50,38,0.12) !important; }
+.slot-glow-hex { outline: 3px solid #ffe45c; }
+
+#trash.hot { transform: scale(1.25) rotate(6deg); }

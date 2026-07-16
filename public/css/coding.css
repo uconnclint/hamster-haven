@@ -1,0 +1,408 @@
+/* ============================================================================
+ * Hamster Haven — coding.css
+ * The Coding-Mode slide-in panel. Overlays the LEFT ~55% of the screen while
+ * the 3D world stays visible + interactive on the right, so players watch the
+ * coding hamster run as their program executes.
+ *
+ * Reuses the vendored Ctrl+Create block editor (coding/blocks.css owns the
+ * block SHAPES; this file owns the PANEL CHROME + editor LAYOUT and defines
+ * the CSS vars blocks.css relies on: --ink / --font).
+ * Warm cozy theme to match public/style.css. Light look only (by design).
+ * ==========================================================================*/
+
+/* ---------------------------------------------------------------- panel --- */
+#coding-panel {
+  /* vars the vendored blocks.css reads off an ancestor */
+  --ink: #3a3226;
+  --font: ui-rounded, "Hiragino Maru Gothic ProN", "Quicksand", "Comfortaa",
+          "Nunito", "Baloo 2", system-ui, sans-serif;
+
+  /* local cozy palette (mirrors style.css so the file stands alone) */
+  --cd-cream:    #fbf3e2;
+  --cd-cream-2:  #f4e6c8;
+  --cd-parch:    #fffaf0;
+  --cd-edge:     #e7d4ac;
+  --cd-ink-soft: #8a6d47;
+  --cd-amber:    #f6c453;
+  --cd-amber-deep:#e9a13b;
+  --cd-amber-dark:#c9822a;
+  --cd-green:    #7fb069;
+  --cd-green-deep:#5f9a4e;
+  --cd-coral:    #ef767a;
+  --cd-coral-deep:#d9585d;
+  --cd-r-lg: 22px;
+  --cd-r-md: 14px;
+  --cd-r-sm: 10px;
+
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: min(55%, 760px);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  font-family: var(--font);
+  color: var(--ink);
+  background:
+    linear-gradient(180deg, var(--cd-parch) 0%, var(--cd-cream) 22%, var(--cd-cream) 100%);
+  border-right: 3px solid rgba(255, 255, 255, 0.8);
+  border-top-right-radius: var(--cd-r-lg);
+  border-bottom-right-radius: var(--cd-r-lg);
+  box-shadow:
+    8px 0 0 rgba(150, 105, 45, 0.10),
+    18px 0 44px rgba(120, 80, 30, 0.28);
+
+  /* closed by default: parked off-screen, inert. .open slides it in. */
+  transform: translateX(-105%);
+  pointer-events: none;
+  transition: transform 0.42s cubic-bezier(0.22, 1.35, 0.4, 1);
+  -webkit-font-smoothing: antialiased;
+}
+
+#coding-panel.open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Only the panel catches pointer events — the world on the right stays
+   clickable because this panel is <=55% wide and there is no full-screen
+   backdrop. Interactive children opt back in even while sliding. */
+#coding-panel button,
+#coding-panel input,
+#coding-panel select,
+#coding-panel textarea,
+#coding-panel .cat-btn,
+#coding-panel .palette-block,
+#coding-panel .stack,
+#coding-panel #trash { pointer-events: auto; }
+
+/* ---------------------------------------------------------------- topbar -- */
+#coding-panel .coding-topbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, var(--cd-parch), var(--cd-cream));
+  border-bottom: 3px solid var(--cd-cream-2);
+  box-shadow: 0 3px 10px rgba(120, 80, 30, 0.10);
+  z-index: 3;
+}
+
+#coding-panel .coding-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  color: var(--cd-amber-dark);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+  margin-right: auto;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* chunky rounded buttons — shared base */
+#coding-panel .coding-topbar button {
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: var(--cd-parch);
+  border: none;
+  border-radius: var(--cd-r-md);
+  padding: 10px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.14);
+  transition: transform 0.09s ease, filter 0.12s ease, box-shadow 0.12s ease;
+}
+#coding-panel .coding-topbar button:hover { filter: brightness(1.05); transform: translateY(-2px); }
+#coding-panel .coding-topbar button:active { transform: translateY(2px); }
+#coding-panel .coding-topbar button:focus-visible { outline: 3px solid rgba(246, 196, 83, 0.65); outline-offset: 2px; }
+#coding-panel .coding-topbar button:disabled { filter: grayscale(0.5) brightness(0.98); opacity: 0.55; cursor: default; transform: none; box-shadow: none; }
+
+/* Go ▶ — green */
+#coding-panel #coding-run {
+  background: linear-gradient(180deg, #97c67f, var(--cd-green));
+  box-shadow: 0 4px 0 var(--cd-green-deep), 0 8px 16px rgba(95, 154, 78, 0.35);
+}
+#coding-panel #coding-run:active { box-shadow: 0 2px 0 var(--cd-green-deep), 0 4px 10px rgba(95, 154, 78, 0.30); }
+
+/* Stop ■ — coral/red */
+#coding-panel #coding-stop {
+  background: linear-gradient(180deg, #f58d90, var(--cd-coral));
+  box-shadow: 0 4px 0 var(--cd-coral-deep), 0 8px 16px rgba(217, 88, 93, 0.32);
+}
+#coding-panel #coding-stop:active { box-shadow: 0 2px 0 var(--cd-coral-deep), 0 4px 10px rgba(217, 88, 93, 0.28); }
+
+/* Done — amber */
+#coding-panel #coding-close {
+  background: linear-gradient(180deg, #ffd67e, var(--cd-amber));
+  color: #6a3e12;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 0 var(--cd-amber-deep), 0 8px 16px rgba(201, 130, 42, 0.30);
+}
+#coding-panel #coding-close:active { box-shadow: 0 2px 0 var(--cd-amber-deep), 0 4px 10px rgba(201, 130, 42, 0.26); }
+
+/* -------------------------------------------------------------- editor row */
+#coding-panel .coding-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+/* ------------------------------------------------------------- cat rail --- */
+#coding-panel #cat-rail {
+  flex: 0 0 64px;
+  width: 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 6px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: linear-gradient(180deg, var(--cd-cream-2), var(--cd-cream));
+  border-right: 2px solid var(--cd-edge);
+  scrollbar-width: thin;
+}
+
+#coding-panel .cat-btn {
+  --cat-color: var(--cd-amber);
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 2px 6px;
+  border: 2px solid color-mix(in srgb, var(--cat-color) 55%, #b79a63);
+  border-radius: var(--cd-r-md);
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--cat-color) 26%, #fffaf0),
+      color-mix(in srgb, var(--cat-color) 40%, #fffaf0));
+  color: var(--ink);
+  font-family: var(--font);
+  cursor: pointer;
+  box-shadow: 0 2px 0 rgba(150, 105, 45, 0.16);
+  transition: transform 0.12s cubic-bezier(0.22, 1.4, 0.4, 1), box-shadow 0.12s, filter 0.12s;
+}
+#coding-panel .cat-btn:hover { transform: translateY(-2px); filter: brightness(1.03); }
+#coding-panel .cat-btn:focus-visible { outline: 3px solid rgba(246, 196, 83, 0.65); outline-offset: 2px; }
+
+#coding-panel .cat-btn .cat-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cat-color);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 4px rgba(120, 80, 30, 0.25);
+}
+#coding-panel .cat-btn .cat-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
+}
+#coding-panel .cat-btn .cat-name {
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.05;
+  text-align: center;
+  color: var(--cd-ink-soft);
+  letter-spacing: 0.01em;
+}
+
+/* active category pops */
+#coding-panel .cat-btn.active {
+  transform: translateY(-2px) scale(1.02);
+  border-color: var(--cat-color);
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--cat-color) 55%, #fffaf0),
+      color-mix(in srgb, var(--cat-color) 72%, #fffaf0));
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--cat-color) 45%, transparent),
+    0 3px 0 rgba(150, 105, 45, 0.2);
+}
+#coding-panel .cat-btn.active .cat-name { color: var(--ink); }
+
+/* ------------------------------------------------------------- palette ---- */
+#coding-panel #palette {
+  flex: 0 0 150px;
+  width: 150px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 0 20px;
+  background:
+    repeating-linear-gradient(180deg, rgba(255,255,255,0.0) 0 30px, rgba(231,212,172,0.10) 30px 31px),
+    linear-gradient(180deg, var(--cd-parch), var(--cd-cream));
+  border-right: 2px solid var(--cd-edge);
+  scrollbar-width: thin;
+}
+
+#coding-panel .palette-tools {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  padding: 8px 8px 6px;
+  background: linear-gradient(180deg, var(--cd-parch) 70%, rgba(255,250,240,0));
+}
+#coding-panel .palette-search {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--cd-parch);
+  border: 2px solid var(--cd-cream-2);
+  border-radius: 999px;
+  padding: 7px 12px;
+  outline: none;
+  transition: border-color 0.14s, box-shadow 0.14s;
+}
+#coding-panel .palette-search::placeholder { color: #c4ab84; font-weight: 600; }
+#coding-panel .palette-search:focus {
+  border-color: var(--cd-amber);
+  box-shadow: 0 0 0 3px rgba(246, 196, 83, 0.32);
+}
+
+/* .palette-sep + .palette-block come from blocks.css; only tune spacing here.
+   Keep the Scratch block colors (inline --blk) untouched. */
+#coding-panel #palette .palette-sep { margin-top: 10px; }
+#coding-panel .palette-empty {
+  margin: 18px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cd-ink-soft);
+  opacity: 0.75;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ----------------------------------------------------------- workspace ---- */
+#coding-panel #workspace-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 20% 0%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 55%),
+    var(--cd-cream);
+}
+
+#coding-panel #workspace {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  /* faint dotted "graph paper" so the scripting area reads as a canvas */
+  background-image:
+    radial-gradient(rgba(120, 80, 30, 0.10) 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+  background-position: 6px 6px;
+  scrollbar-width: thin;
+}
+
+#coding-panel #ws-canvas {
+  position: relative;
+  width: 2000px;
+  height: 2000px;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+/* empty-state hint — faint centered helper text. JS toggles visibility via
+   #workspace.has-blocks; style both paths. */
+#coding-panel #ws-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 320px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--cd-ink-soft);
+  opacity: 0.5;
+  pointer-events: none;
+  user-select: none;
+}
+#coding-panel #workspace.has-blocks #ws-hint { display: none; }
+
+/* trash — floats bottom-right of the workspace */
+#coding-panel #trash {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 15;
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--cd-coral-deep);
+  background: linear-gradient(180deg, var(--cd-parch), var(--cd-cream));
+  border: 2.5px dashed color-mix(in srgb, var(--cd-coral) 55%, #d9b98a);
+  border-radius: 50%;
+  box-shadow: 0 4px 0 rgba(150, 105, 45, 0.18), 0 8px 18px rgba(120, 80, 30, 0.22);
+  cursor: default;
+  transition: transform 0.14s cubic-bezier(0.22, 1.4, 0.4, 1),
+              background 0.14s, border-color 0.14s, box-shadow 0.14s;
+}
+/* .hot is added by workspace.js while a block hovers the trash */
+#coding-panel #trash.hot {
+  background: linear-gradient(180deg, #ffd6d7, var(--cd-coral));
+  border-color: var(--cd-coral-deep);
+  border-style: solid;
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(239, 118, 122, 0.35), 0 6px 16px rgba(217, 88, 93, 0.4);
+  /* note: blocks.css also applies its own scale/rotate on #trash.hot */
+}
+
+/* --------------------------------------------------------- scrollbars ----- */
+#coding-panel #cat-rail::-webkit-scrollbar,
+#coding-panel #palette::-webkit-scrollbar,
+#coding-panel #workspace::-webkit-scrollbar { width: 10px; height: 10px; }
+#coding-panel #cat-rail::-webkit-scrollbar-thumb,
+#coding-panel #palette::-webkit-scrollbar-thumb,
+#coding-panel #workspace::-webkit-scrollbar-thumb {
+  background: rgba(150, 105, 45, 0.28);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+#coding-panel #cat-rail::-webkit-scrollbar-thumb:hover,
+#coding-panel #palette::-webkit-scrollbar-thumb:hover,
+#coding-panel #workspace::-webkit-scrollbar-thumb:hover { background: rgba(150, 105, 45, 0.45); background-clip: padding-box; }
+#coding-panel #cat-rail::-webkit-scrollbar-track,
+#coding-panel #palette::-webkit-scrollbar-track,
+#coding-panel #workspace::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------------------------------------------------- short / narrow ------ */
+/* On short screens the panel keeps its structure and each column scrolls
+   internally (min-height:0 on .coding-body already enables that). Tighten the
+   chrome so buttons + editor still fit. */
+@media (max-height: 620px) {
+  #coding-panel .coding-topbar { padding: 8px 12px; }
+  #coding-panel .coding-title { font-size: 17px; }
+  #coding-panel .coding-topbar button { padding: 8px 12px; font-size: 15px; }
+}
+@media (max-width: 720px) {
+  #coding-panel { width: min(72%, 620px); }
+  #coding-panel #palette { flex-basis: 132px; width: 132px; }
+}

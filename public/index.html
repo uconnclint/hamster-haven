@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hamster Haven</title>
 <link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/coding/blocks.css">
+<link rel="stylesheet" href="/css/coding.css">
 <link rel="icon" type="image/png" href="/assets/favicon.png">
 <script type="importmap">
 { "imports": { "three": "/vendor/three.module.js" } }
@@ -13,6 +15,36 @@
 <body>
 <canvas id="game-canvas"></canvas>
 <div id="ui-root"></div>
+
+<!-- Coding Mode panel. Must exist BEFORE the vendored editor scripts below:
+     they grab these ids at script-load time. -->
+<div id="coding-panel">
+  <div class="coding-topbar">
+    <div class="coding-title">Hammy's Workshop</div>
+    <button id="coding-run" type="button" title="Run the program">Go &#9654;</button>
+    <button id="coding-stop" type="button" title="Stop everything">Stop &#9632;</button>
+    <button id="coding-close" type="button" title="Back to playing">Done</button>
+  </div>
+  <div class="coding-body">
+    <div id="cat-rail"></div>
+    <div id="palette"></div>
+    <div id="workspace-wrap">
+      <div id="workspace">
+        <div id="ws-canvas"></div>
+        <div id="ws-hint">Drag blocks here to teach Hammy tricks — start with "when &#9873; clicked"!</div>
+      </div>
+      <div id="trash" title="Drag blocks here to delete">&#10005;</div>
+    </div>
+  </div>
+</div>
+
+<!-- Vendored Ctrl+Create block editor (classic scripts, order matters). -->
+<script src="/coding/core.js"></script>
+<script src="/coding/hamsterBlocks.js"></script>
+<script src="/coding/blockRender.js"></script>
+<script src="/coding/palette.js"></script>
+<script src="/coding/workspace.js"></script>
+
 <script type="module" src="/js/main.js"></script>
 </body>
 </html>

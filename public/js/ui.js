@@ -62,6 +62,7 @@ const S = {
   buildItems: [],
   buildHelp: null,
   musicBtn: null,
+  codeBtn: null,
   // values
   name: 'Hamster',
   colorIndex: 0,
@@ -425,7 +426,17 @@ function buildHud() {
     },
   }, [img('icon-music-off.png', 'hh-music-icon')]);
 
-  const topLeft = el('div', { class: 'hh-topleft' }, [S.codeChip, S.seedEl, S.musicBtn]);
+  // Coding Mode toggle
+  S.codeBtn = el('button', {
+    class: 'hh-chip hh-code-mode', type: 'button', title: 'Teach the robot hamster (Coding Mode)',
+    style: 'font-weight:800;letter-spacing:.02em;',
+    onclick: () => { if (S.cb.onCode) S.cb.onCode(); },
+  }, [
+    el('span', { class: 'hh-code-mode-icon', text: '{ }', style: 'margin-right:5px;font-weight:900;' }),
+    el('span', { text: 'Code' }),
+  ]);
+
+  const topLeft = el('div', { class: 'hh-topleft' }, [S.codeChip, S.seedEl, S.musicBtn, S.codeBtn]);
 
   // player list top-right
   S.playerList = el('div', { class: 'hh-players' });
